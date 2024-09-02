@@ -1,5 +1,6 @@
 import React from 'react';
-
+import Token from '../Component/Token/Token'
+import { component_subscribe } from 'svelte/internal';
 export default function Board({ ctx, G, moves, plugins }) {
   const onClick = (id) => moves.clickCell(id);
   let winner = '';
@@ -58,7 +59,7 @@ export default function Board({ ctx, G, moves, plugins }) {
 
         <tr>
           {plugins.player.data.players[ctx.currentPlayer].availableActions.map((token, i) => {
-            return (<td key={i}>{plugins.player.data.players[ctx.currentPlayer].availableActions[i]}</td>)
+            return (<td key={i}><Token type={plugins.player.data.players[ctx.currentPlayer].availableActions[i]}></Token></td>)
           })}
           <td></td>
         </tr>
