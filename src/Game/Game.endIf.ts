@@ -18,7 +18,7 @@ function IsVictory(cells) {
     return cells.filter(c => c === null).length === 0;
   }
 
-  const endIfCond = function( {G, ctx} )  {
+  export function endIfCond( {G, ctx} )  {
     if (IsVictory(G.cells)) {
       return { winner: ctx.currentPlayer };
     }
@@ -26,5 +26,3 @@ function IsVictory(cells) {
       return { draw: true };
     }
   };
-
-  export { endIfCond };

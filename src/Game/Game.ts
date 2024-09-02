@@ -1,13 +1,14 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
 import { endIfCond } from './Game.endIf';
-import { defaultOptions } from './Game.options';
+import { defaultOptions, GameOptions } from './Game.options';
 import { Extend } from '../Utils/Objects'
-const Game = function(options) {
-
+import setupGame from './Game.setup';
+export function Game(options : GameOptions) {
   options = Extend(options, defaultOptions);
   console.table(options);
+
   return {
-    setup: () => ({ cells: Array(9).fill(null) }),
+    setup: setupGame(options),
     turn: {
         minMoves: 1,
         maxMoves: 1,
@@ -24,4 +25,3 @@ const Game = function(options) {
   };
 }
 
-export default Game;
