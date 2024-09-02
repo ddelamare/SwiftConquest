@@ -3,7 +3,7 @@ import {GameOptions} from './Game.options'
 export function setupGame (options : GameOptions | null) {
     return () => {
         var startingPool = ["A", "B", "C", "D"]
-
+        
         return {
             cells: Array(9).fill(null),
             actionPool: startingPool

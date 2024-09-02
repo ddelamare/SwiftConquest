@@ -17,6 +17,33 @@ export function Game(options : GameOptions) {
         minMoves: 1,
         maxMoves: 1,
       },
+    phases:{
+      boardSetup: {
+        start: true,
+        next: 'actionDraft',
+        moves: {
+          pickAction: ({G, playerID, player}, id) => {
+            console.log(playerID);
+            if (G.actionPool.length <= id) {
+              return INVALID_MOVE;
+            }
+            var action = G.actionPool.splice(id,1);
+            var newPlayer = structuredClone(player.get());
+            newPlayer.availableActions.push(action);
+            
+            player.set(newPlayer)
+
+            return G;
+          },
+        },
+        endIf: ({G}) => (G.actionPool.length <= 0)
+      },
+      actionDraft: {
+        next: 'mainPhase',
+        moves: {}
+      },
+      mainPhase: {}
+    },
     moves: {
         clickCell: ({ G, playerID }, id) => {
             if (G.cells[id] !== null) {
