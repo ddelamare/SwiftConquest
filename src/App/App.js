@@ -3,7 +3,7 @@ import { Local } from 'boardgame.io/multiplayer';
 import { Game } from '../Game';
 import Board  from '../Board';
 const GameClient = Client({
-  game: Game({moves: 2}),
+  game: Game({}),
   board: Board,
   multiplayer: Local(),
 });

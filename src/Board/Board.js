@@ -1,8 +1,7 @@
 import React from 'react';
 
-export default function Board({ ctx, G, moves }) {
+export default function Board({ ctx, G, moves, plugins }) {
   const onClick = (id) => moves.clickCell(id);
-
   let winner = '';
   if (ctx.gameover) {
     winner =
@@ -43,6 +42,28 @@ export default function Board({ ctx, G, moves }) {
     <div>
       <table id="board">
         <tbody>{tbody}</tbody>
+      </table>
+      <table id="actionPool">
+        <tbody>
+        <tr>
+          {G.actionPool.map((token, i) => {
+            return (<td key={i}>{G.actionPool[i]}</td>)
+          })}
+          <td></td>
+        </tr>
+          </tbody>
+      </table>
+      <table id="actionPool">
+      <tbody>
+
+        <tr>
+          {plugins.player.data.players[ctx.currentPlayer].availableActions.map((token, i) => {
+            return (<td key={i}>{plugins.player.data.players[ctx.currentPlayer].availableActions[i]}</td>)
+          })}
+          <td></td>
+        </tr>
+        </tbody>
+
       </table>
       {winner}
     </div>
