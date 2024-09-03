@@ -4,8 +4,21 @@ export function setupGame (options : GameOptions | null) {
     return () => {
         var startingPool = ["A", "B", "C", "D"]
         
+        const mapRows = 5;
+        const mapColumns = 7;
+
+        var map : any = [];
+        var count = 0;
+        for(var i = 0; i < mapRows; i++){
+            var row : any = [];
+            for(var j = 0; j < mapColumns + (i % 2); j++){
+                row.push(count++);
+            }
+            map.push(row)
+        }
+
         return {
-            cells: Array(9).fill(null),
+            map: map,
             actionPool: startingPool
         }
     }

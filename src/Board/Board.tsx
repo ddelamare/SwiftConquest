@@ -2,6 +2,7 @@ import { Component, ReactElement } from 'react';
 import Token from '../Component/Token/Token'
 import * as PropTypes from 'prop-types'
 import type { BoardProps } from 'boardgame.io/react';
+import './Board.css'
 class Board extends Component<BoardProps> {
   static propTypes = {
     G: PropTypes.any.isRequired,
@@ -17,12 +18,8 @@ class Board extends Component<BoardProps> {
   onClick = (id) => this.props.moves.clickCell(id);
   pickAction = (id) => this.props.moves.pickAction(id);
 
-  isActive(id) {
-    return this.props.isActive && this.props.G.cells[id] === null;
-  }
 
   render() {
-    console.log("rendering")
     let winner : ReactElement = <div></div>;
   if (this.props.ctx.gameover) {
     winner =
@@ -41,34 +38,29 @@ class Board extends Component<BoardProps> {
     textAlign: 'center',
   };
 
-  let tbody : Array<ReactElement> = [];
-  for (let i = 0; i < 3; i++) {
-    let cells : Array<ReactElement> = [];
-    for (let j = 0; j < 3; j++) {
+  let cells : Array<ReactElement> = [];
+  for (let i = 0; i < 5; i++) {
+    for (let j = 0; j < 5; j++) {
       const id = 3 * i + j;
       cells.push(
-        <td key={id}>
-          {this.props.G.cells[id] ? (
-            <div style={cellStyle}>{this.props.G.cells[id]}</div>
-          ) : (
-            <button style={cellStyle} onClick={() => this.onClick(id)} />
-          )}
-        </td>
+        <div key={id}>this.props.G.cells[id]</div>
       );
     }
-    tbody.push(<tr key={i}>{cells}</tr>);
   }
 
   return (
     <div>
-      <table id="board">
-        <tbody>{tbody}</tbody>
-      </table>
+      <div className="board">
+        {this.props.G.map.map((row, i) => {
+          return (<div  className='hex-container'>{row.map((tile, j) => {
+            return (<div key={tile}>{tile}</div>)
+          })} </div>)})}
+      </div>
       <table id="actionPool">
         <tbody>
         <tr>
           {this.props.G.actionPool.map((token, i) => {
-            return (<td key={i} onClick={() => this.pickAction(i)}>{token}</td>)
+            return (<td key={token} onClick={() => this.pickAction(i)}><Token type={token} owner={null} location={null}></Token></td>)
           })}
           <td></td>
         </tr>
@@ -76,15 +68,14 @@ class Board extends Component<BoardProps> {
       </table>
       <table id="actionPool">
       <tbody>
-
         <tr>
           {this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions.map((token, i) => {
-            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions[i]} owner={null} location={null}></Token></td>)
+            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions[i]} owner={this.props.ctx.currentPlayer} location={null}></Token></td>)
           })}
         </tr>
         <tr>
           {this.props.plugins.player.data.players[this.props.playerID!].availableActions.map((token, i) => {
-            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.playerID!].availableActions[i]} owner={null} location={null}></Token></td>)
+            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.playerID!].availableActions[i]} owner={this.props.playerID} location={null}></Token></td>)
           })}
         </tr>
         </tbody>

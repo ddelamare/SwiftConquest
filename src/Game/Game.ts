@@ -32,8 +32,6 @@ export function Game(options : GameOptions) {
             newPlayer.availableActions.push(action);
             
             player.set(newPlayer)
-
-            return G;
           },
         },
         endIf: ({G}) => (G.actionPool.length <= 0)
