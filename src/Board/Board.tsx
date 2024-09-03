@@ -22,6 +22,7 @@ class Board extends Component<BoardProps> {
   }
 
   render() {
+    console.log("rendering")
     let winner : ReactElement = <div></div>;
   if (this.props.ctx.gameover) {
     winner =
@@ -67,7 +68,7 @@ class Board extends Component<BoardProps> {
         <tbody>
         <tr>
           {this.props.G.actionPool.map((token, i) => {
-            return (<td key={i}>{this.props.G.actionPool[i]}</td>)
+            return (<td key={i} onClick={() => this.pickAction(i)}>{token}</td>)
           })}
           <td></td>
         </tr>
@@ -78,9 +79,13 @@ class Board extends Component<BoardProps> {
 
         <tr>
           {this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions.map((token, i) => {
-            return (<td key={i} onClick={() => this.pickAction(i)}><Token type={this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions[i]} owner={null} location={null}></Token></td>)
+            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions[i]} owner={null} location={null}></Token></td>)
           })}
-          <td></td>
+        </tr>
+        <tr>
+          {this.props.plugins.player.data.players[this.props.playerID!].availableActions.map((token, i) => {
+            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.playerID!].availableActions[i]} owner={null} location={null}></Token></td>)
+          })}
         </tr>
         </tbody>
 
