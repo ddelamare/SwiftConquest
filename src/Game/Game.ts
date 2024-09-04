@@ -40,7 +40,22 @@ export function Game(options : GameOptions) {
       },
       actionDraft: {
         next: 'mainPhase',
-        moves: {}
+        moves: {
+          selectToken: {
+            move: ({G, player}, id) => {
+              var newPlayer = player.get();
+              newPlayer.selectedToken = id;
+            },
+            redact: true,
+            noLimit: true
+          },
+          placeToken: ({G, playerID, player}, id) => {
+            if (!player.get().selectedToken) {
+              return INVALID_MOVE;
+            }
+            console.log("Placing token on hex", id);
+          }
+        }
       },
       mainPhase: {}
     },
@@ -56,7 +71,7 @@ export function Game(options : GameOptions) {
       // pass your function to the player plugin
       PluginPlayer({
         setup: playerSetup,
-       //playerView: playerView,
+        playerView: playerView,
       }),
     ],
     endIf: endIfCond,

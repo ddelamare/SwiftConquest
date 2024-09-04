@@ -16,9 +16,6 @@ class Board extends Component<BoardProps> {
     isPreview: PropTypes.bool,
   };
 
-  onClick = (id) => this.props.moves.clickCell(id);
-
-
   render() {
     let winner : ReactElement = <div></div>;
   if (this.props.ctx.gameover) {
@@ -36,14 +33,14 @@ class Board extends Component<BoardProps> {
       <div className="board">
         {this.props.G.map.map((row, i) => {
           return (<div key={i + "i"}  className='hex-container'>{row.map((tile, j) => {
-            return (<div key={i + " " + j}>{tile}</div>)
+            return (<div key={i + " " + j} onClick={() => this.props.moves.placeToken(tile)}>{tile}</div>)
           })} </div>)})}
       </div>
       <table>
         <tbody>
         <tr>
           {this.props.G.actionPool.map((token, i) => {
-            return (<td key={this.props.playerID + "ap" + token.id} onClick={() => {this.props.moves.pickAction(i);console.log("here" , this.props.playerID)}}><Token type={token.type} owner={null} rank={null}></Token></td>)
+            return (<td key={this.props.playerID + "ap" + token.id} onClick={() => {this.props.moves.pickAction(i);}}><Token type={token.type} owner={null} rank={null}></Token></td>)
           })}
           <td></td>
         </tr>
@@ -54,7 +51,7 @@ class Board extends Component<BoardProps> {
         {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
           return <tr key={"avatr" + pid}>
             {player.availableActions.map((token, i) => {
-            return (<td key={this.props.playerID + "ava" + token.id} ><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
+            return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken? "glow" : "shadow"} onClick={() => {this.props.moves.selectToken(token.id)}}><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
           })}
           </tr>
         })}

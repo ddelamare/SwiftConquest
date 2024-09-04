@@ -1,13 +1,14 @@
 import {GameOptions} from './Game.options'
 import {TokenType} from '../Component/Token'
 import { GetUniqueId } from '../Utils/Objects';
+import Action from '../Helpers/Data/Actions';
 export function setupGame (options : GameOptions | null) {
     return () => {
         var startingPool : TokenType[] = [
-            {id: GetUniqueId(), type: "A", owner: null, rank: null},
-            {id: GetUniqueId(), type: "B", owner: null, rank: null},
-            {id: GetUniqueId(), type: "C", owner: null, rank: null},
-            {id: GetUniqueId(), type: "D", owner: null, rank: null},
+            {id: GetUniqueId(), type: Action.Attack, owner: null, rank: null},
+            {id: GetUniqueId(), type: Action.Defend, owner: null, rank: null},
+            {id: GetUniqueId(), type: Action.Gather, owner: null, rank: null},
+            {id: GetUniqueId(), type: Action.Aid, owner: null, rank: null},
         ]
         
         const mapRows = 5;
@@ -31,13 +32,14 @@ export function setupGame (options : GameOptions | null) {
 }
 
 type PlayerData = {
-    availableActions: Array<TokenType>
+    availableActions: Array<TokenType>,
+    selectedToken: string | null
 }
 
 // define a function to initialize each player’s state
 export function playerSetup(playerID) { 
     return {
-        availableActions: [{id: GetUniqueId(), type: playerID, owner: playerID, rank: null}]
+        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID, rank: null}]
     }
  };
 
@@ -48,7 +50,7 @@ export function playerView(players, playerID) {
     function hideSecrets(player : PlayerData){
         var maskedPlayer = {...player};
         // Mark tokens as unknown:
-        maskedPlayer.availableActions = player.availableActions.map((a) => ({id: GetUniqueId(), type: "X", owner: null, rank: null}));
+        maskedPlayer.availableActions = player.availableActions.map((a) => ({id: GetUniqueId(), type: Action.Unknown, owner: null, rank: null}));
 
         return maskedPlayer;
     }
@@ -61,6 +63,5 @@ export function playerView(players, playerID) {
             scrubbedData[player] = hideSecrets(players[player]);
         }
     }
-    console.log(scrubbedData);
     return scrubbedData;
 }
