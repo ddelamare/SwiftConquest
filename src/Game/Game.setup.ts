@@ -1,8 +1,14 @@
 import {GameOptions} from './Game.options'
-
+import {TokenType} from '../Component/Token'
+import { GetUniqueId } from '../Utils/Objects';
 export function setupGame (options : GameOptions | null) {
     return () => {
-        var startingPool = ["A", "B", "C", "D"]
+        var startingPool : TokenType[] = [
+            {id: GetUniqueId(), type: "A", owner: null, rank: null},
+            {id: GetUniqueId(), type: "B", owner: null, rank: null},
+            {id: GetUniqueId(), type: "C", owner: null, rank: null},
+            {id: GetUniqueId(), type: "D", owner: null, rank: null},
+        ]
         
         const mapRows = 5;
         const mapColumns = 7;
@@ -25,13 +31,13 @@ export function setupGame (options : GameOptions | null) {
 }
 
 type PlayerData = {
-    availableActions: Array<string>
+    availableActions: Array<TokenType>
 }
 
 // define a function to initialize each player’s state
 export function playerSetup(playerID) { 
     return {
-        availableActions: Array(3).fill(playerID)
+        availableActions: [{id: GetUniqueId(), type: playerID, owner: playerID, rank: null}]
     }
  };
 
@@ -40,9 +46,9 @@ export function playerView(players, playerID) {
     var scrubbedData = {};
 
     function hideSecrets(player : PlayerData){
-        var maskedPlayer = structuredClone(player);
+        var maskedPlayer = {...player};
         // Mark tokens as unknown:
-        maskedPlayer.availableActions = player.availableActions.map((a) => "X");
+        maskedPlayer.availableActions = player.availableActions.map((a) => ({id: GetUniqueId(), type: "X", owner: null, rank: null}));
 
         return maskedPlayer;
     }

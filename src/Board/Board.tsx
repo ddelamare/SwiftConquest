@@ -3,6 +3,7 @@ import Token from '../Component/Token/Token'
 import * as PropTypes from 'prop-types'
 import type { BoardProps } from 'boardgame.io/react';
 import './Board.css'
+import { KeysAsArray } from '../Utils/Objects'
 class Board extends Component<BoardProps> {
   static propTypes = {
     G: PropTypes.any.isRequired,
@@ -16,7 +17,6 @@ class Board extends Component<BoardProps> {
   };
 
   onClick = (id) => this.props.moves.clickCell(id);
-  pickAction = (id) => this.props.moves.pickAction(id);
 
 
   render() {
@@ -30,54 +30,35 @@ class Board extends Component<BoardProps> {
       );
   }
 
-  const cellStyle : any  = {
-    border: '1px solid #555',
-    width: '50px',
-    height: '50px',
-    lineHeight: '50px',
-    textAlign: 'center',
-  };
-
-  let cells : Array<ReactElement> = [];
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < 5; j++) {
-      const id = 3 * i + j;
-      cells.push(
-        <div key={id}>this.props.G.cells[id]</div>
-      );
-    }
-  }
-
+  console.log(this.props.plugins.player.data.players)
   return (
     <div>
       <div className="board">
         {this.props.G.map.map((row, i) => {
-          return (<div  className='hex-container'>{row.map((tile, j) => {
-            return (<div key={tile}>{tile}</div>)
+          return (<div key={i + "i"}  className='hex-container'>{row.map((tile, j) => {
+            return (<div key={i + " " + j}>{tile}</div>)
           })} </div>)})}
       </div>
-      <table id="actionPool">
+      <table>
         <tbody>
         <tr>
           {this.props.G.actionPool.map((token, i) => {
-            return (<td key={token} onClick={() => this.pickAction(i)}><Token type={token} owner={null} location={null}></Token></td>)
+            return (<td key={this.props.playerID + "ap" + token.id} onClick={() => {this.props.moves.pickAction(i);console.log("here" , this.props.playerID)}}><Token type={token.type} owner={null} rank={null}></Token></td>)
           })}
           <td></td>
         </tr>
           </tbody>
       </table>
-      <table id="actionPool">
+      <table>
       <tbody>
-        <tr>
-          {this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions.map((token, i) => {
-            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.ctx.currentPlayer].availableActions[i]} owner={this.props.ctx.currentPlayer} location={null}></Token></td>)
+        {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
+          return <tr key={"avatr" + pid}>
+            {player.availableActions.map((token, i) => {
+            return (<td key={this.props.playerID + "ava" + token.id} ><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
           })}
-        </tr>
-        <tr>
-          {this.props.plugins.player.data.players[this.props.playerID!].availableActions.map((token, i) => {
-            return (<td key={i} ><Token type={this.props.plugins.player.data.players[this.props.playerID!].availableActions[i]} owner={this.props.playerID} location={null}></Token></td>)
-          })}
-        </tr>
+          </tr>
+        })}
+        
         </tbody>
 
       </table>

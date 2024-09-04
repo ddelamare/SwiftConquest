@@ -1,11 +1,16 @@
 import * as React from 'react'
 import './Token.css'
 
+export type TokenType = {
+    id: string,
+    type: string,
+    owner: string | null,
+    rank: number | null
+}
 
-export default function Token({type, owner, location}) {
+export default function Token({type, owner, rank}) {
 
     var fillColor = "gray";
-    var ctx;
     if (owner === "0"){
         fillColor = "green";
     }
