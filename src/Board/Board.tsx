@@ -28,7 +28,6 @@ class Board extends Component<BoardProps> {
         );
     }
 
-    console.log(this.props.plugins.player.data.players)
     return (
       <div>
         <div className="board">

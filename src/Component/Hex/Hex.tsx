@@ -8,7 +8,8 @@ type HexProps = {
 
   export type HexType = {
     id: string,
-    tokens: TokenType[]
+    tokens: TokenType[],
+    type: Hexes
   }
 
 class Hex extends React.Component<HexProps> {
