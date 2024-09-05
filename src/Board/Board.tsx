@@ -1,5 +1,6 @@
 import { Component, ReactElement } from 'react';
 import Token from '../Component/Token/Token'
+import Hex from '../Component/Hex/Hex'
 import * as PropTypes from 'prop-types'
 import type { BoardProps } from 'boardgame.io/react';
 import './Board.css'
@@ -17,52 +18,53 @@ class Board extends Component<BoardProps> {
   };
 
   render() {
-    let winner : ReactElement = <div></div>;
-  if (this.props.ctx.gameover) {
-    winner =
-      this.props.ctx.gameover.winner !== undefined ? (
-        <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
-      ) : (
-        <div id="winner">Draw!</div>
-      );
-  }
+    let winner: ReactElement = <div></div>;
+    if (this.props.ctx.gameover) {
+      winner =
+        this.props.ctx.gameover.winner !== undefined ? (
+          <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
+        ) : (
+          <div id="winner">Draw!</div>
+        );
+    }
 
-  console.log(this.props.plugins.player.data.players)
-  return (
-    <div>
-      <div className="board">
-        {this.props.G.map.map((row, i) => {
-          return (<div key={i + "i"}  className='hex-container'>{row.map((tile, j) => {
-            return (<div key={i + " " + j} onClick={() => this.props.moves.placeToken(tile)}>{tile}</div>)
-          })} </div>)})}
-      </div>
-      <table>
-        <tbody>
-        <tr>
-          {this.props.G.actionPool.map((token, i) => {
-            return (<td key={this.props.playerID + "ap" + token.id} onClick={() => {this.props.moves.pickAction(i);}}><Token type={token.type} owner={null} rank={null}></Token></td>)
+    console.log(this.props.plugins.player.data.players)
+    return (
+      <div>
+        <div className="board">
+          {this.props.G.map.map((row, i) => {
+            return (<div key={i + "i"} className='hex-container'>{row.map((hex, j) => {
+              return (<Hex key={i + " " + j} data={hex} onClick={() => this.props.moves.placeToken(hex)}>{hex.id}</Hex>)
+            })} </div>)
           })}
-          <td></td>
-        </tr>
+        </div>
+        <table>
+          <tbody>
+            <tr>
+              {this.props.G.actionPool.map((token, i) => {
+                return (<td key={this.props.playerID + "ap" + token.id} onClick={() => { this.props.moves.pickAction(i); }}><Token type={token.type} owner={null} rank={null}></Token></td>)
+              })}
+              <td></td>
+            </tr>
           </tbody>
-      </table>
-      <table>
-      <tbody>
-        {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
-          return <tr key={"avatr" + pid}>
-            {player.availableActions.map((token, i) => {
-            return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken? "glow" : "shadow"} onClick={() => {this.props.moves.selectToken(token.id)}}><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
-          })}
-          </tr>
-        })}
-        
-        </tbody>
+        </table>
+        <table>
+          <tbody>
+            {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
+              return <tr key={"avatr" + pid}>
+                {player.availableActions.map((token, i) => {
+                  return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : "shadow"} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
+                })}
+              </tr>
+            })}
 
-      </table>
-      <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
-      {winner}
-    </div>
-  );
+          </tbody>
+
+        </table>
+        <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
+        {winner}
+      </div>
+    );
   }
 }
 

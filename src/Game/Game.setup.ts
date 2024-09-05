@@ -1,5 +1,6 @@
 import {GameOptions} from './Game.options'
 import {TokenType} from '../Component/Token'
+import { HexType } from '../Component/Hex/Hex';
 import { GetUniqueId } from '../Utils/Objects';
 import Action from '../Helpers/Data/Actions';
 export function setupGame (options : GameOptions | null) {
@@ -14,12 +15,12 @@ export function setupGame (options : GameOptions | null) {
         const mapRows = 5;
         const mapColumns = 7;
 
-        var map : any = [];
+        var map : HexType[] = [];
         var count = 0;
         for(var i = 0; i < mapRows; i++){
             var row : any = [];
             for(var j = 0; j < mapColumns + (i % 2); j++){
-                row.push(count++);
+                row.push({id: GetUniqueId(), tokens: []});
             }
             map.push(row)
         }

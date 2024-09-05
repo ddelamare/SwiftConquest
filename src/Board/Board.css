@@ -10,7 +10,7 @@
     font-size: 0; /*disable white space between inline block element */
   }
   
-  .hex-container > div {
+  .hex {
     width: var(--s);
     margin: var(--m);
     height: calc(var(--s)*1.1547); 
@@ -21,11 +21,11 @@
     margin-bottom: calc(var(--m) - var(--s)*0.2885); 
   }
 
-  .hex-container > div:nth-child(odd) {
+  .hex-container > .hex:nth-child(odd) {
     background:green;
   }
 
-  .hex-container div:hover {
+  .hex-container .hex:hover {
     box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.5);
   }
 
