@@ -1,3 +1,7 @@
-svg {
-    color : red;
+.token circle{
+    stroke: #000;
+}
+
+.hex text {
+    stroke-width: 0;
 }

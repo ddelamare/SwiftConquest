@@ -23,7 +23,7 @@ export default function Token({type, owner, rank, renderSvgTag}) {
 
     return (
         <BaseTag height="100" width="100" viewBox="-50 -50 100 100">
-            <circle r={renderSvgTag? 50 : 5} fill={fillColor}>
+            <circle className='token' r={renderSvgTag? 50 : 5} fill={fillColor}>
             </circle>
             <text dominantBaseline="middle" textAnchor="middle">{Action[type]}</text>            
         </BaseTag> 

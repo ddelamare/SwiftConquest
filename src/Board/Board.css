@@ -3,18 +3,23 @@
 }
 
 .hex {
-  fill: #d2b48c;
+  stroke: #000;
+  stroke-width: .5;
+}
+
+.hex-std {
+  fill: #adcbe3;
 }
 
 .hex-alt {
-  fill: #9b856a;
+  fill: #e7eff6;
 }
 
 .hex-alt-2 {
-  fill: #675848;
+  fill: #63ace5;
 }
 
-.hex text, .hex-alt text, .hex-alt-2 text{
+.hex text{
   font-size: 2px;
   fill: #000;
 }
