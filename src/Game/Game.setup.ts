@@ -42,7 +42,7 @@ function playerSetup(playerID) {
  };
 
 // filter data returned to each client to hide secret state (OPTIONAL)
-export function playerView(G, playerID) { 
+export function playerView(G, ctx, playerID) { 
     var players = G.players
     var scrubbedData = {};
 
@@ -54,7 +54,7 @@ export function playerView(G, playerID) {
         return maskedPlayer;
     }
 
-    var map = G.map.map((hex,i) => (
+    var map = G.map.map((hex) => (
         {
             ...hex, 
             tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner? token.type : Action.Unknown, owner: token.owner, rank: null}))

@@ -84,7 +84,7 @@ export function Game(options: GameOptions) {
       }
     },
     endIf: endIfCond,
-    playerView: ({ G, ctx, playerID }) =>{ return playerView(G, playerID)},
+    playerView: ({ G, ctx, playerID }) =>{ return playerView(G, ctx, playerID)},
   };
 }
 
