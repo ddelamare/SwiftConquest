@@ -9,25 +9,23 @@
   .hex-container {
     font-size: 0; /*disable white space between inline block element */
   }
-  
+  .hex:hover polygon{
+    filter: brightness(50%);
+    }
   .hex {
-    width: var(--s);
-    margin: var(--m);
-    height: calc(var(--s)*1.1547); 
-    display: inline-block;
-    font-size:initial;
-    clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
-    background: red;
-    margin-bottom: calc(var(--m) - var(--s)*0.2885); 
+    fill: red;
   }
 
-  .hex-container > .hex:nth-child(odd) {
-    background:green;
+  .hex text {
+    font-size: 3px;
+    color:#000;
   }
 
-  .hex-container .hex:hover {
-    box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.5);
+  .grid .hex:nth-child(odd) {
+    fill:green;
   }
+
+  
 
   .board > .hex-container:nth-child(odd) {
     content: "";

@@ -6,23 +6,26 @@ export type TokenType = {
     id: string,
     type: Action,
     owner: string | null,
-    rank: number | null
-}
+    rank: number | null}
 
-export default function Token({type, owner, rank}) {
+export default function Token({type, owner, rank, renderSvgTag}) {
 
     var fillColor = "gray";
     if (owner === "0"){
-        fillColor = "green";
+        fillColor = "lightgreen";
     }
     if (owner === "1"){
         fillColor = "lightblue";
     }
 
+    const BaseTag = renderSvgTag? 'svg' : 'g'
+
+
     return (
-        <svg height="100" width="100" xmlns="http://www.w3.org/2000/svg">
-            <circle r="45" cx="50" cy="50" fill={fillColor} />
-            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle">{Action[type]}</text>            
-        </svg> 
+        <BaseTag height="100" width="100" viewBox="-50 -50 100 100">
+            <circle r={renderSvgTag? 50 : 5} fill={fillColor}>
+            </circle>
+            <text dominantBaseline="middle" textAnchor="middle">{Action[type]}</text>            
+        </BaseTag> 
     )
 } 

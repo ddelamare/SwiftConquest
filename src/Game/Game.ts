@@ -6,6 +6,8 @@ import { Extend, UnwrapProxy } from '../Utils/Objects'
 import { setupGame, playerSetup, playerView } from './Game.setup';
 import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
+import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
+import { HexType } from '../Component/Hex/Hex';
 
 export function Game(options: GameOptions) {
   options = Extend(options, defaultOptions);
@@ -53,11 +55,19 @@ export function Game(options: GameOptions) {
             noLimit: true
           },
           placeToken: {
-            move: ({ G, playerID, player }, id) => {
-              if (!player.state[playerID].selectedToken) {
+            move: ({ G, playerID, player }, hex) => {
+              if (!player.state[playerID].selectedToken || !hex) {
                 return INVALID_MOVE;
               }
-              console.log("Placing token on hex", id);
+              
+              var hexElem : HexType = FindElementById(G.map, hex.id);
+              var token = FindElementById(player.state[playerID].availableActions,player.state[playerID].selectedToken); 
+              if (!hexElem || !token){
+                return INVALID_MOVE;
+              }
+              debugger;
+              hexElem.tokens.push(token);
+              var tokenIdx = player.state[playerID].availableActions.indexOf(token)
             },
             redact: true,
             noLimit: true

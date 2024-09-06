@@ -3,6 +3,7 @@ import {TokenType} from '../Component/Token'
 import { HexType } from '../Component/Hex/Hex';
 import { GetUniqueId } from '../Utils/Objects';
 import Action from '../Helpers/Data/Actions';
+import Board from '../Board';
 export function setupGame (options : GameOptions | null) {
     return () => {
         var startingPool : TokenType[] = [
@@ -12,21 +13,11 @@ export function setupGame (options : GameOptions | null) {
             {id: GetUniqueId(), type: Action.Aid, owner: null, rank: null},
         ]
         
-        const mapRows = 5;
-        const mapColumns = 7;
-
-        var map : HexType[] = [];
-        for(var i = 0; i < mapRows; i++){
-            var row : any = [];
-            for(var j = 0; j < mapColumns + (i % 2); j++){
-                row.push({id: GetUniqueId(), tokens: []});
-            }
-            map.push(row)
-        }
+        var map = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], tile: {q: tile.q, r: tile.r, s: tile.s}} });
 
         return {
             map: map,
-            actionPool: startingPool
+            actionPool: startingPool,
         }
     }
 }

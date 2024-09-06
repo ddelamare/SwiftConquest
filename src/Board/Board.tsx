@@ -5,6 +5,10 @@ import * as PropTypes from 'prop-types'
 import type { BoardProps } from 'boardgame.io/react';
 import './Board.css'
 import { KeysAsArray } from '../Utils/Objects'
+import { HexGrid, Layout } from 'react-hexgrid';
+import { createContext, useContext } from 'react';
+import { GridGenerator } from 'react-hexgrid';
+
 class Board extends Component<BoardProps> {
   static propTypes = {
     G: PropTypes.any.isRequired,
@@ -16,6 +20,9 @@ class Board extends Component<BoardProps> {
     isConnected: PropTypes.bool,
     isPreview: PropTypes.bool,
   };
+
+  static HexMapContext = createContext(Hex[0]);
+  static HexMap = GridGenerator.hexagon(4);
 
   render() {
     let winner: ReactElement = <div></div>;
@@ -29,19 +36,19 @@ class Board extends Component<BoardProps> {
     }
 
     return (
-      <div>
+      <Board.HexMapContext.Provider value={Board.HexMap}>
         <div className="board">
-          {this.props.G.map.map((row, i) => {
-            return (<div key={i + "i"} className='hex-container'>{row.map((hex, j) => {
-              return (<Hex key={i + " " + j} data={hex} onClick={() => this.props.moves.placeToken(hex)}>{hex.id}</Hex>)
-            })} </div>)
-          })}
+          <HexGrid width={900} height={800} viewBox="-50 -50 100 100">
+            <Layout size={{ x: 6, y: 6 }}>
+              {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={() => this.props.moves.placeToken(hex)} data={hex}>1</Hex>)}
+            </Layout>
+          </HexGrid>
         </div>
         <table>
           <tbody>
             <tr>
               {this.props.G.actionPool.map((token, i) => {
-                return (<td key={this.props.playerID + "ap" + token.id} onClick={() => { this.props.moves.pickAction(i); }}><Token type={token.type} owner={null} rank={null}></Token></td>)
+                return (<td key={this.props.playerID + "ap" + token.id} onClick={() => { this.props.moves.pickAction(i); }}><Token type={token.type} owner={null} rank={null} renderSvgTag={true}></Token></td>)
               })}
               <td></td>
             </tr>
@@ -52,7 +59,7 @@ class Board extends Component<BoardProps> {
             {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
               return <tr key={"avatr" + pid}>
                 {player.availableActions.map((token, i) => {
-                  return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : "shadow"} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null}></Token></td>)
+                  return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : "shadow"} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null} renderSvgTag={true}></Token></td>)
                 })}
               </tr>
             })}
@@ -62,7 +69,7 @@ class Board extends Component<BoardProps> {
         </table>
         <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
         {winner}
-      </div>
+      </Board.HexMapContext.Provider>
     );
   }
 }
