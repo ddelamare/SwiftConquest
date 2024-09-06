@@ -62,12 +62,12 @@ export function Game(options: GameOptions) {
               
               var hexElem : HexType = FindElementById(G.map, hex.id);
               var token = FindElementById(player.state[playerID].availableActions,player.state[playerID].selectedToken); 
-              if (!hexElem || !token){
+              if (!hexElem || !token || hexElem.tokens.length > 0){
                 return INVALID_MOVE;
               }
-              debugger;
+
               hexElem.tokens.push(token);
-              var tokenIdx = player.state[playerID].availableActions.indexOf(token)
+              var tokenIdx = player.state[playerID].availableActions.indexOf(token);
             },
             redact: true,
             noLimit: true
@@ -91,6 +91,7 @@ export function Game(options: GameOptions) {
       }),
     ],
     endIf: endIfCond,
+    playerView: ({ G, ctx, playerID }) =>{ return  {...G, playerID }},
   };
 }
 
