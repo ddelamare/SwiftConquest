@@ -16,7 +16,6 @@ export function setupGame (options : GameOptions | null) {
         const mapColumns = 7;
 
         var map : HexType[] = [];
-        var count = 0;
         for(var i = 0; i < mapRows; i++){
             var row : any = [];
             for(var j = 0; j < mapColumns + (i % 2); j++){
@@ -40,8 +39,9 @@ type PlayerData = {
 // define a function to initialize each player’s state
 export function playerSetup(playerID) { 
     return {
-        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID, rank: null}]
-    }
+        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID, rank: null}],
+        selectedToken: null
+    } satisfies PlayerData
  };
 
 // filter data returned to each client to hide secret state (OPTIONAL)
