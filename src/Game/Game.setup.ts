@@ -34,7 +34,7 @@ type PlayerData = {
 }
 
 // define a function to initialize each player’s state
-export function playerSetup(playerID) { 
+function playerSetup(playerID) { 
     return {
         availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}],
         selectedToken: null
@@ -42,7 +42,8 @@ export function playerSetup(playerID) {
  };
 
 // filter data returned to each client to hide secret state (OPTIONAL)
-export function playerView(players, playerID) { 
+export function playerView(G, playerID) { 
+    var players = G.players
     var scrubbedData = {};
 
     function hideSecrets(player : PlayerData){
@@ -61,5 +62,5 @@ export function playerView(players, playerID) {
             scrubbedData[player] = hideSecrets(players[player]);
         }
     }
-    return scrubbedData;
+    return {...G, players: scrubbedData};
 }

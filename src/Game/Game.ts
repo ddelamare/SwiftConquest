@@ -2,7 +2,7 @@ import { INVALID_MOVE } from 'boardgame.io/core';
 import { endIfCond } from './Game.endIf';
 import { defaultOptions, GameOptions } from './Game.options';
 import { Extend, UnwrapProxy } from '../Utils/Objects'
-import { setupGame, playerSetup, playerView } from './Game.setup';
+import { setupGame,  playerView } from './Game.setup';
 import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
 import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
@@ -67,6 +67,7 @@ export function Game(options: GameOptions) {
 
               hexElem.tokens.push(token);
               var tokenIdx = G.players[playerID].availableActions.indexOf(token);
+              G.players[playerID].availableActions.splice(tokenIdx, 1);
             },
             redact: true,
             noLimit: true
@@ -83,7 +84,7 @@ export function Game(options: GameOptions) {
       }
     },
     endIf: endIfCond,
-    playerView: ({ G, ctx, playerID }) =>{ return  {...G, playerID }},
+    playerView: ({ G, ctx, playerID }) =>{ return playerView(G, playerID)},
   };
 }
 
