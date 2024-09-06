@@ -1,5 +1,4 @@
 import { INVALID_MOVE } from 'boardgame.io/core';
-import { PluginPlayer } from 'boardgame.io/plugins';
 import { endIfCond } from './Game.endIf';
 import { defaultOptions, GameOptions } from './Game.options';
 import { Extend, UnwrapProxy } from '../Utils/Objects'
@@ -31,7 +30,7 @@ export function Game(options: GameOptions) {
 
             var action: TokenType = UnwrapProxy(G.actionPool.splice(id, 1))[0];
             action.owner = playerID;
-            var newPlayer = player.get();
+            var newPlayer = G.players[playerID];
             // Bypass local multiplayer double action bug
             if (!newPlayer.availableActions.some((elem) => elem.id === action.id)) {
               newPlayer.availableActions.push(action);
@@ -47,27 +46,27 @@ export function Game(options: GameOptions) {
         },
         moves: {
           selectToken: {
-            move: ({ G, player, playerID }, id) => {
-              var newPlayer = player.state[playerID];
+            move: ({ G, playerID }, id) => {
+              var newPlayer = G.players[playerID];
               newPlayer.selectedToken = id;
             },
             redact: true,
             noLimit: true
           },
           placeToken: {
-            move: ({ G, playerID, player }, hex) => {
-              if (!player.state[playerID].selectedToken || !hex) {
+            move: ({ G, playerID }, hex) => {
+              if (!G.players[playerID].selectedToken || !hex) {
                 return INVALID_MOVE;
               }
               
               var hexElem : HexType = FindElementById(G.map, hex.id);
-              var token = FindElementById(player.state[playerID].availableActions,player.state[playerID].selectedToken); 
+              var token = FindElementById(G.players[playerID].availableActions,G.players[playerID].selectedToken); 
               if (!hexElem || !token || hexElem.tokens.length > 0){
                 return INVALID_MOVE;
               }
 
               hexElem.tokens.push(token);
-              var tokenIdx = player.state[playerID].availableActions.indexOf(token);
+              var tokenIdx = G.players[playerID].availableActions.indexOf(token);
             },
             redact: true,
             noLimit: true
@@ -83,13 +82,6 @@ export function Game(options: GameOptions) {
         G.cells[id] = playerID;
       }
     },
-    plugins: [
-      // pass your function to the player plugin
-      PluginPlayer({
-        setup: playerSetup,
-        playerView: playerView,
-      }),
-    ],
     endIf: endIfCond,
     playerView: ({ G, ctx, playerID }) =>{ return  {...G, playerID }},
   };

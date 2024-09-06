@@ -56,7 +56,7 @@ class Board extends Component<BoardProps> {
         </table>
         <table>
           <tbody>
-            {KeysAsArray(this.props.plugins.player.data.players).map((player, pid) => {
+            {KeysAsArray(this.props.G.players).map((player, pid) => {
               return <tr key={"avatr" + pid}>
                 {player.availableActions.map((token, i) => {
                   return (<td key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : "shadow"} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null} renderSvgTag={true}></Token></td>)

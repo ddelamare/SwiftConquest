@@ -4,7 +4,7 @@ import { HexType } from '../Component/Hex/Hex';
 import { GetUniqueId } from '../Utils/Objects';
 import Action from '../Helpers/Data/Actions';
 import Board from '../Board';
-export function setupGame (options : GameOptions | null) {
+export function setupGame (options : GameOptions) {
     return () => {
         var startingPool : TokenType[] = [
             {id: GetUniqueId(), type: Action.Attack, owner: null, rank: null},
@@ -15,9 +15,15 @@ export function setupGame (options : GameOptions | null) {
         
         var map = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], tile: {q: tile.q, r: tile.r, s: tile.s}} });
 
+        var players : PlayerData[] = [];
+        for(var i = 0; i < options.numPlayers; i++){
+            players.push(playerSetup(i));
+        }
+
         return {
             map: map,
             actionPool: startingPool,
+            players
         }
     }
 }
@@ -30,7 +36,7 @@ type PlayerData = {
 // define a function to initialize each player’s state
 export function playerSetup(playerID) { 
     return {
-        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID, rank: null}],
+        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}],
         selectedToken: null
     } satisfies PlayerData
  };
