@@ -49,10 +49,16 @@ export function playerView(G, playerID) {
     function hideSecrets(player : PlayerData){
         var maskedPlayer = {...player};
         // Mark tokens as unknown:
-        maskedPlayer.availableActions = player.availableActions.map((a) => ({id: GetUniqueId(), type: Action.Unknown, owner: null, rank: null}));
+        maskedPlayer.availableActions = player.availableActions.map((a) => ({id: a.id, type: Action.Unknown, owner: a.owner, rank: null}));
 
         return maskedPlayer;
     }
+
+    var map = G.map.map((hex,i) => (
+        {
+            ...hex, 
+            tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner? token.type : Action.Unknown, owner: token.owner, rank: null}))
+        }));
 
     for(var player in players){
         if (player === playerID){
@@ -62,5 +68,5 @@ export function playerView(G, playerID) {
             scrubbedData[player] = hideSecrets(players[player]);
         }
     }
-    return {...G, players: scrubbedData};
+    return {...G, map: map, players: scrubbedData};
 }

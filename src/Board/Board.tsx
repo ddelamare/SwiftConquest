@@ -21,22 +21,11 @@ class Board extends Component<BoardProps> {
     isPreview: PropTypes.bool,
   };
 
-  static HexMapContext = createContext(Hex[0]);
   static HexMap = GridGenerator.hexagon(4);
 
   render() {
-    let winner: ReactElement = <div></div>;
-    if (this.props.ctx.gameover) {
-      winner =
-        this.props.ctx.gameover.winner !== undefined ? (
-          <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
-        ) : (
-          <div id="winner">Draw!</div>
-        );
-    }
-
     return (
-      <Board.HexMapContext.Provider value={Board.HexMap}>
+      <div>
         <div className="board">
           <HexGrid width={900} height={800} viewBox="-50 -50 100 100">
             <Layout size={{ x: 6, y: 6 }}>
@@ -68,8 +57,7 @@ class Board extends Component<BoardProps> {
 
         </table>
         <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
-        {winner}
-      </Board.HexMapContext.Provider>
+      </div>
     );
   }
 }
