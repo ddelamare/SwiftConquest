@@ -23,6 +23,7 @@
       "jest",
       "src/setupTests.ts"
     ],
+    "include": ["src"],
     "types": [
       "typePatches"
     ]
