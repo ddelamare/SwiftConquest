@@ -3,6 +3,7 @@ import Token, { TokenType } from '../Token';
 import { Hexagon, Text } from 'react-hexgrid';
 import { HexagonProps } from 'react-hexgrid/lib/Hexagon/Hexagon';
 import { Hexes } from '../../Helpers/Data/Hexes';
+import  Unit  from '../Unit/Unit'
 type HexProps = {
     children: string | JSX.Element | JSX.Element[] | null,
     onClick: React.MouseEventHandler<SVGAElement>;
@@ -27,6 +28,7 @@ class Hex extends React.Component<HexProps> {
         //     {this.props.children}
         // </div>
         return <Hexagon className={"hex " + (this.sumCoord == 0 ? "hex-std" : this.sumCoord == 1 ? "hex-alt" : "hex-alt-2")} key={this.props.data.id} onClick={this.props.onClick} q={this.props.data.tile.q} r={this.props.data.tile.r} s={this.props.data.tile.s}>
+                <Unit owner={null}></Unit>
                 {this.props.data.tokens.map((token, id) => {return <Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token>})}
                 {this.props.children}
                 {/* <Text>{(this.props.data.tile.q + " " + this.props.data.tile.r + " " +  this.props.data.tile.s + "= " + this.sumCoord)}</Text> */}
