@@ -20,7 +20,7 @@ type HexProps = {
 class Hex extends React.Component<HexProps> {
 
     // this calculates the color based on https://www.redblobgames.com/x/1902-hexagon-coloring/
-    sumCoord = Math.abs(((this.props.data.tile.q - this.props.data.tile.r) + 3) % 3);
+    sumCoord = Math.abs(((this.props.data.tile.q - this.props.data.tile.r) + 9) % 3);
     render() {
 
         // return <div className='hex' onClick={this.props.onClick}>
@@ -31,7 +31,7 @@ class Hex extends React.Component<HexProps> {
                 <Unit owner={null}></Unit>
                 {this.props.data.tokens.map((token, id) => {return <Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token>})}
                 {this.props.children}
-                {/* <Text>{(this.props.data.tile.q + " " + this.props.data.tile.r + " " +  this.props.data.tile.s + "= " + this.sumCoord)}</Text> */}
+                {<Text>{(this.props.data.tile.q + " " + this.props.data.tile.r + " " +  this.props.data.tile.s + "= " + this.sumCoord)}</Text>}
         </Hexagon>
     }
 }
