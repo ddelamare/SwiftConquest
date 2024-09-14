@@ -15,7 +15,7 @@ class Unit extends React.Component<Props, State> {
 
 
     return (
-        <BaseTag style={{transform: "scale(10%)"}} height="32" width="32" viewBox="-50 -50 100 100">
+        <BaseTag style={{transform: "scale(10%)"}} fill={`var(--player-${this.props.owner}-color)`} height="32" width="32" viewBox="-50 -50 100 100">
             <UnitIcon  />
         </BaseTag> 
     )

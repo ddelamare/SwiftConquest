@@ -25,7 +25,7 @@ class Board extends Component<BoardProps> {
 
   render() {
     return (
-      <div>
+      <div className={this.props.playerID == "0"? "default-theme" : "dark-theme"}>
         <div className="board">
           <HexGrid width={900} height={800} viewBox="-50 -50 100 100">
             <Layout size={{ x: 6, y: 6 }}>
