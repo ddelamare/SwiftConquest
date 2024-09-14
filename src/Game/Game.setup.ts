@@ -1,6 +1,5 @@
 import {GameOptions} from './Game.options'
 import {TokenType} from '../Component/Token'
-import { HexType } from '../Component/Hex/Hex';
 import { GetUniqueId } from '../Utils/Objects';
 import Action from '../Helpers/Data/Actions';
 import Board from '../Board';

@@ -26,7 +26,6 @@ class Hex extends React.Component<HexProps> {
                 {this.props.data.tokens.map((token, id) => {return <Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token>})}
                 <Unit owner={"1"}></Unit>
                 {this.props.children}
-                {/* {<Text>{(this.props.data.tile.q + " " + this.props.data.tile.r + " " +  this.props.data.tile.s + "= " + this.sumCoord)}</Text>} */}
         </Hexagon>
     }
 }
