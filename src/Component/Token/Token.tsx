@@ -11,11 +11,8 @@ export type TokenType = {
 export default function Token({type, owner, rank, renderSvgTag}) {
 
     var fillColor = "gray";
-    if (owner === "0"){
-        fillColor = "lightgreen";
-    }
-    if (owner === "1"){
-        fillColor = "lightblue";
+    if (owner) {
+        fillColor = `var(--player-${owner}-color)`
     }
 
     const BaseTag = renderSvgTag? 'svg' : 'g'

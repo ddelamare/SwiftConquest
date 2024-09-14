@@ -8,15 +8,15 @@
 }
 
 .hex-std {
-  fill: #adcbe3;
+  fill: var(--hex-std-background);
 }
 
 .hex-alt {
-  fill: #e7eff6;
+  fill: var(--hex-alt-background);
 }
 
 .hex-alt-2 {
-  fill: #63ace5;
+  fill: var(--hex-alt-2-background);
 }
 
 .hex text{
