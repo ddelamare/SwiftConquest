@@ -2,6 +2,10 @@
   filter: brightness(50%);
 }
 
+.grid {
+  background-image: url("/src/assets/wood-bg-light.jpg");
+}
+
 .hex {
   stroke: #000;
   stroke-width: .5;

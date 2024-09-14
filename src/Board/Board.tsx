@@ -1,4 +1,4 @@
-import { Component, ReactElement } from 'react';
+import { Component } from 'react';
 import Token from '../Component/Token/Token'
 import Hex from '../Component/Hex/Hex'
 import * as PropTypes from 'prop-types'
@@ -6,7 +6,6 @@ import type { BoardProps } from 'boardgame.io/react';
 import './Board.css'
 import { KeysAsArray } from '../Utils/Objects'
 import { HexGrid, Layout } from 'react-hexgrid';
-import { createContext, useContext } from 'react';
 import { GridGenerator } from 'react-hexgrid';
 
 class Board extends Component<BoardProps> {
@@ -21,24 +20,28 @@ class Board extends Component<BoardProps> {
     isPreview: PropTypes.bool,
   };
 
-  static HexMap = GridGenerator.hexagon(4);
+  static HexMap = GridGenerator.hexagon(3);
 
   render() {
     return (
-      <div className={this.props.playerID == "0"? "default-theme" : "dark-theme"}>
+      <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
         <div className="board">
-          <HexGrid width={900} height={800} viewBox="-50 -50 100 100">
+          <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
             <Layout size={{ x: 6, y: 6 }}>
               {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={() => this.props.moves.placeToken(hex)} data={hex}>1</Hex>)}
+              <svg width="70" height="10" x="-48" y="-50" viewBox='0 0 70 10' style={{fontSize: "3px"}}>
+                <rect width="100%" height="100%"  rx="1" fillOpacity="0" strokeOpacity="1" stroke='black' strokeWidth="1"></rect>
+                {this.props.G.actionPool.map((token, i) => {
+                    return (<g transform={`translate(${10 * (i + .5) },5)`} key={this.props.playerID + "ap" + token.id} onClick={() => { this.props.moves.pickAction(i); }}><Token  type={token.type} owner={null} rank={null} renderSvgTag={false}></Token></g>)
+                  })}
+              </svg>
             </Layout>
           </HexGrid>
         </div>
         <table>
           <tbody>
             <tr>
-              {this.props.G.actionPool.map((token, i) => {
-                return (<td key={this.props.playerID + "ap" + token.id} onClick={() => { this.props.moves.pickAction(i); }}><Token type={token.type} owner={null} rank={null} renderSvgTag={true}></Token></td>)
-              })}
+
               <td></td>
             </tr>
           </tbody>
