@@ -7,6 +7,7 @@ import './Board.css'
 import { KeysAsArray } from '../Utils/Objects'
 import { HexGrid, Layout } from 'react-hexgrid';
 import { GridGenerator } from 'react-hexgrid';
+import Patterns from './Patterns';
 
 class Board extends Component<BoardProps> {
   static propTypes = {
@@ -27,6 +28,7 @@ class Board extends Component<BoardProps> {
       <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
         <div className="board">
           <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
+            <Patterns/>
             <Layout size={{ x: 6, y: 6 }}>
               {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={() => this.props.moves.placeToken(hex)} data={hex}>1</Hex>)}
               <svg width="35" height="6" x="-49" y="-50" viewBox='0 0 70 10' style={{fontSize: "3px"}}>
