@@ -41,7 +41,7 @@ class Board extends Component<BoardProps> {
               return <svg width="35" height="6" x="-49" y={-50 + ((pid + 1) * 6)} viewBox='0 0 70 10' style={{fontSize: "3px"}}>
                 <rect width="100%" height="100%"  rx="1" fillOpacity="0" strokeOpacity="1" stroke='black' strokeWidth=".5"></rect>
                 {player.availableActions.map((token, i) => {
-                  return (<g transform={`translate(${11 * (i + .5) },5)`} key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : "shadow"} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null} renderSvgTag={false}></Token></g>)
+                  return (<g transform={`translate(${11 * (i + .5) },5)`} key={this.props.playerID + "ava" + token.id} className={token.id === player.selectedToken ? "glow" : ""} onClick={() => { this.props.moves.selectToken(token.id) }}><Token type={token.type} owner={token.owner} rank={null} renderSvgTag={false}></Token></g>)
                 })}
               </svg>
             })}

@@ -18,7 +18,7 @@ export default function Token({type, owner, rank, renderSvgTag}) {
     const BaseTag = renderSvgTag? 'svg' : 'g'
 
     return (
-        <BaseTag height="100" width="100" viewBox="-50 -50 100 100">
+        <BaseTag className="shadow" height="100" width="100" viewBox="-50 -50 100 100">
             <circle className='token' r={renderSvgTag? 50 : 5} fill={fillColor}>
             </circle>
             <circle className='token' r={renderSvgTag? 40 : 4} fill={`url(#${Action[type].toLowerCase()}Token)`}>
