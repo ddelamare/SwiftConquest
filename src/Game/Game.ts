@@ -71,6 +71,26 @@ export function Game(options: GameOptions) {
             },
             redact: true,
             noLimit: true
+          },
+          clearToken: {
+            move: ({ G, playerID }, tokenId, hexId) => {
+              if (!tokenId) {
+                return INVALID_MOVE;
+              }
+              debugger;
+              console.log(tokenId, hexId)
+              var hexElem : HexType = FindElementById(G.map, hexId);
+              var token : TokenType = FindElementById(hexElem.tokens, tokenId); 
+              if (!hexElem || !token || hexElem.tokens.length == 0 || token.owner !== playerID){
+                return INVALID_MOVE;
+              }
+
+              G.players[playerID].availableActions.push(token)
+              var tokenIdx = hexElem.tokens.indexOf(token);
+              hexElem.tokens.splice(tokenIdx, 1);
+            },
+            redact: true,
+            noLimit: true
           }
         }
       }

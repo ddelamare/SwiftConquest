@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { Component, createContext, useContext } from 'react';
 import Token from '../Component/Token/Token'
 import Hex from '../Component/Hex/Hex'
 import * as PropTypes from 'prop-types'
@@ -8,6 +8,8 @@ import { KeysAsArray } from '../Utils/Objects'
 import { HexGrid, Layout } from 'react-hexgrid';
 import { GridGenerator } from 'react-hexgrid';
 import Patterns from './Patterns';
+
+export const MoveContext = createContext<any | null>(null);
 
 class Board extends Component<BoardProps> {
   static propTypes = {
@@ -25,6 +27,7 @@ class Board extends Component<BoardProps> {
 
   render() {
     return (
+      <MoveContext.Provider value={this.props.moves}>
       <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
         <div className="board">
           <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
@@ -51,6 +54,7 @@ class Board extends Component<BoardProps> {
         </div>
         <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
       </div>
+      </MoveContext.Provider>
     );
   }
 }

@@ -4,6 +4,7 @@ import { Hexagon, Text } from 'react-hexgrid';
 import { HexagonProps } from 'react-hexgrid/lib/Hexagon/Hexagon';
 import { Hexes } from '../../Helpers/Data/Hexes';
 import  Unit  from '../Unit/Unit'
+import {MoveContext} from '../../Board'
 type HexProps = {
     children: string | JSX.Element | JSX.Element[] | null,
     onClick: React.MouseEventHandler<SVGAElement>;
@@ -17,17 +18,17 @@ type HexProps = {
     tile: HexagonProps
   }
 
-class Hex extends React.Component<HexProps> {
+const Hex = ( props : HexProps )  => {
 
+    var moves : any = React.useContext(MoveContext)
+    var tokenClick = (id, hexId) => moves.clearToken(id, hexId);
     // this calculates the color based on https://www.redblobgames.com/x/1902-hexagon-coloring/
-    sumCoord = Math.abs(((this.props.data.tile.q - this.props.data.tile.r) + 9) % 3);
-    render() {
-        return <Hexagon className={"hex " + (this.sumCoord === 0 ? "hex-std" : this.sumCoord === 1 ? "hex-alt" : "hex-alt-2")} key={this.props.data.id} onClick={this.props.onClick} q={this.props.data.tile.q} r={this.props.data.tile.r} s={this.props.data.tile.s}>
-                {this.props.data.tokens.map((token, id) => {return <Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token>})}
-                <Unit owner={"1"}></Unit>
-                {this.props.children}
-        </Hexagon>
-    }
-}
+    var sumCoord = Math.abs(((props.data.tile.q - props.data.tile.r) + 9) % 3); 
+    return <Hexagon className={"hex " + (sumCoord === 0 ? "hex-std" : sumCoord === 1 ? "hex-alt" : "hex-alt-2")} key={props.data.id} onClick={props.onClick} q={props.data.tile.q} r={props.data.tile.r} s={props.data.tile.s}>
+                {props.data.tokens.map((token, id) => {return <g onClick={(e) => { tokenClick(token.id, props.data.id); e.stopPropagation()}}><Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token></g>})}
+                <Unit owner={"0"}></Unit>
+                {props.children}
+            </Hexagon>
+};
 
 export default Hex;
