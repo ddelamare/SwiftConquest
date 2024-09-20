@@ -21,10 +21,10 @@ export default function Patterns() {
             viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
             <image height="1" width="1" preserveAspectRatio="xMidYMid slice" href={require('../assets/first-aid-kit.svg').default}  />
             </pattern>
-        <pattern id="unknownToken" height="100%" width="100%"
+        <pattern id="unknownToken" height="90%" width="90%"
             patternContentUnits="objectBoundingBox"
             viewBox="0 0 1 1" preserveAspectRatio="xMidYMid slice">
-            <image height="1" width="1" preserveAspectRatio="xMidYMid slice" href={require('../assets/wide-arrow-dunk.svg').default}  />
+            <image height="1" width="1" preserveAspectRatio="xMidYMid slice" href={require('../assets/unknown-token.svg').default}  />
             </pattern>
     </defs>
 }
