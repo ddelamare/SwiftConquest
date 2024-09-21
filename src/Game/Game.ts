@@ -7,7 +7,7 @@ import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
 import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
 import { HexType } from '../Component/Hex/Hex';
-import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Data/Units';
+import { CreateUnitForPlayer, GetHexesWithDudes, GetUnitsForPlayer } from '../Helpers/Data/Units';
 import { MovePropsType } from './Game.types';
 
 export function Game(options: GameOptions) {
@@ -75,7 +75,7 @@ export function Game(options: GameOptions) {
               
               var hexElem : HexType = FindElementById(G.map, hex.id);
               var token = FindElementById(G.players[playerID].availableActions,G.players[playerID].selectedToken); 
-              if (!hexElem || !token || hexElem.tokens.length > 0){
+              if (!hexElem || !token || hexElem.tokens.length > 0 || GetUnitsForPlayer(hexElem, playerID).length == 0){
                 return INVALID_MOVE;
               }
 
