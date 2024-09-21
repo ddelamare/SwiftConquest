@@ -1,15 +1,16 @@
 import * as React from 'react'
 import { ReactComponent as UnitIcon } from '../../assets/unit.svg'
 
-interface Props {
+interface UnitProps {
     owner: string | null
 }
 
-interface State {
-
+export interface UnitType {
+    id: string,
+    owner: string | null,
 }
 
-class Unit extends React.Component<Props, State> {
+class Unit extends React.Component<UnitProps, UnitType> {
     render() {
         const BaseTag = false ? 'svg' : 'g'
 

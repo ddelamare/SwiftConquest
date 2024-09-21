@@ -12,7 +12,7 @@ export function setupGame (options : GameOptions) {
             {id: GetUniqueId(), type: Action.Aid, owner: null, rank: null},
         ]
         
-        var map = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], tile: {q: tile.q, r: tile.r, s: tile.s}} });
+        var map = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], units: [], tile: {q: tile.q, r: tile.r, s: tile.s}} });
 
         var players : PlayerData[] = [];
         for(var i = 0; i < options.numPlayers; i++){
@@ -35,7 +35,7 @@ type PlayerData = {
 // define a function to initialize each player’s state
 function playerSetup(playerID) { 
     return {
-        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}],
+        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Gather, owner: playerID + "", rank: null}],
         selectedToken: null
     } satisfies PlayerData
  };

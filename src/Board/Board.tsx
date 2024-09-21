@@ -24,8 +24,18 @@ class Board extends Component<BoardProps> {
   };
 
   static HexMap = GridGenerator.hexagon(3);
-
+  
   render() {
+    var hexClickHandler = (evt, hex) => {
+      console.info(this.props.ctx);
+      debugger;
+      if (this.props.ctx.phase === "initialUnitPlacement"){
+        this.props.moves.placeDude(hex.id);
+      }
+      if (this.props.ctx.phase === "mainPhase"){
+        this.props.moves.placeToken(hex);
+      }
+    };
     return (
       <MoveContext.Provider value={this.props.moves}>
       <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
@@ -33,7 +43,7 @@ class Board extends Component<BoardProps> {
           <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
             <Patterns/>
             <Layout size={{ x: 6, y: 6 }}>
-              {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={() => this.props.moves.placeToken(hex)} data={hex}>1</Hex>)}
+              {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={(e) => hexClickHandler(e,hex)} data={hex}>1</Hex>)}
               <svg width="35" height="6" x="-49" y="-50" viewBox='0 0 70 10' style={{fontSize: "3px"}}>
                 <rect width="100%" height="100%"  rx="1" fillOpacity="0" strokeOpacity="1" stroke='black' strokeWidth=".5"></rect>
                 {this.props.G.actionPool.map((token, i) => {

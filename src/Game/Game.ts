@@ -7,6 +7,7 @@ import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
 import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
 import { HexType } from '../Component/Hex/Hex';
+import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Data/Units';
 
 export function Game(options: GameOptions) {
   options = Extend(options, defaultOptions);
@@ -21,7 +22,7 @@ export function Game(options: GameOptions) {
     phases: {
       actionDraft: {
         start: true,
-        next: 'mainPhase',
+        next: 'initialUnitPlacement',
         moves: {
           pickAction: ({ G, playerID, player }, id) => {
             if (G.actionPool.length <= id) {
@@ -39,8 +40,20 @@ export function Game(options: GameOptions) {
         },
         endIf: ({ G }) => (G.actionPool.length <= 0)
       },
-      mainPhase: {
+      initialUnitPlacement:{
         next: 'mainPhase',
+        moves: {
+          placeDude: ({ G, playerID, player }, hexId) => {
+            var hexElem : HexType = FindElementById(G.map, hexId);
+            if (!hexElem || hexElem.units.length !== 0){
+              return INVALID_MOVE;
+            }
+            hexElem.units.push(CreateUnitForPlayer(playerID));
+          },
+        },
+        endIf: ({ G }) => (GetHexesWithDudes(G).length >= 12)
+      },
+      mainPhase: {
         turn: {
           activePlayers: { all: Stage.NULL },
         },
@@ -77,11 +90,9 @@ export function Game(options: GameOptions) {
               if (!tokenId) {
                 return INVALID_MOVE;
               }
-              debugger;
-              console.log(tokenId, hexId)
               var hexElem : HexType = FindElementById(G.map, hexId);
               var token : TokenType = FindElementById(hexElem.tokens, tokenId); 
-              if (!hexElem || !token || hexElem.tokens.length == 0 || token.owner !== playerID){
+              if (!hexElem || !token || hexElem.tokens.length === 0 || token.owner !== playerID){
                 return INVALID_MOVE;
               }
 
