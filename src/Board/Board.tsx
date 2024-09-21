@@ -56,7 +56,7 @@ class Board extends Component<BoardProps> {
                 })}
               </svg>
             })}
-
+            <text x={-9} y={-40} fontSize="5px">{this.props.ctx.phase}</text>
             </Layout>
           </HexGrid>
         </div>

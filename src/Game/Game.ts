@@ -8,6 +8,7 @@ import { Stage } from 'boardgame.io/core';
 import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
 import { HexType } from '../Component/Hex/Hex';
 import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Data/Units';
+import { MovePropsType } from './Game.types';
 
 export function Game(options: GameOptions) {
   options = Extend(options, defaultOptions);
@@ -24,13 +25,13 @@ export function Game(options: GameOptions) {
         start: true,
         next: 'initialUnitPlacement',
         moves: {
-          pickAction: ({ G, playerID, }, id) => {
+          pickAction: ({ G, playerID, } : MovePropsType , id) => {
             if (G.actionPool.length <= id) {
               return INVALID_MOVE;
             }
 
             var action: TokenType = UnwrapProxy(G.actionPool.splice(id, 1))[0];
-            action.owner = playerID;
+            action.owner = playerID ;
             var newPlayer = G.players[playerID];
             // Bypass local multiplayer double action bug
             if (!newPlayer.availableActions.some((elem) => elem.id === action.id)) {
@@ -38,12 +39,12 @@ export function Game(options: GameOptions) {
             }
           },
         },
-        endIf: ({ G }) => (G.actionPool.length <= 0)
+        endIf: ({ G } : MovePropsType) => (G.actionPool.length <= 0)
       },
       initialUnitPlacement:{
         next: 'mainPhase',
         moves: {
-          placeDude: ({ G, playerID, player }, hexId) => {
+          placeDude: ({ G, playerID }: MovePropsType , hexId) => {
             var hexElem : HexType = FindElementById(G.map, hexId);
             if (!hexElem || hexElem.units.length !== 0){
               return INVALID_MOVE;
