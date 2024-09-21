@@ -24,7 +24,7 @@ export function Game(options: GameOptions) {
         start: true,
         next: 'initialUnitPlacement',
         moves: {
-          pickAction: ({ G, playerID, player }, id) => {
+          pickAction: ({ G, playerID, }, id) => {
             if (G.actionPool.length <= id) {
               return INVALID_MOVE;
             }

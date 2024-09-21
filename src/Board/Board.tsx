@@ -1,4 +1,4 @@
-import { Component, createContext, useContext } from 'react';
+import { Component, createContext } from 'react';
 import Token from '../Component/Token/Token'
 import Hex from '../Component/Hex/Hex'
 import * as PropTypes from 'prop-types'
@@ -27,8 +27,6 @@ class Board extends Component<BoardProps> {
   
   render() {
     var hexClickHandler = (evt, hex) => {
-      console.info(this.props.ctx);
-      debugger;
       if (this.props.ctx.phase === "initialUnitPlacement"){
         this.props.moves.placeDude(hex.id);
       }
