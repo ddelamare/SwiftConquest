@@ -2,9 +2,9 @@ import Board from "../../Board"
 import { HexType } from "../../Component/Hex/Hex";
 
 enum Hexes {
-    Standard = 0,
-    Keep,
-    Mine
+    Standard = 'standard',
+    Keep = 'keep',
+    Mine = 'mine'
 }
 
 const HexColor = {

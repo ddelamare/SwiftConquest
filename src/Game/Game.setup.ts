@@ -20,7 +20,12 @@ export function setupGame (options : GameOptions) {
             {id: GetUniqueId(), type: Action.Aid, owner: null, rank: null},
         ]
         
-        var map = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], units: [], tile: {q: tile.q, r: tile.r, s: tile.s}, type: Hexes.Standard} satisfies HexType });
+        var map : HexType[] = Board.HexMap.map((tile) => { return {id: GetUniqueId(), tokens: [], units: [], tile: {q: tile.q, r: tile.r, s: tile.s}, type: Hexes.Standard} satisfies HexType });
+
+        var mineHexes = [5,7,29,31];
+        mineHexes.forEach(element => {
+            map[element].type = Hexes.Mine;
+        });
 
         var players : PlayerData[] = [];
         for(var i = 0; i < options.numPlayers; i++){
