@@ -12,7 +12,7 @@ export type GameStateType = {
 }
 
 export function setupGame (options : GameOptions) {
-    return () => {
+    return ({ctx}, setupData) => {
         var startingPool : TokenType[] = [
             {id: GetUniqueId(), type: Action.Attack, owner: null, rank: null},
             {id: GetUniqueId(), type: Action.Defend, owner: null, rank: null},
@@ -28,7 +28,7 @@ export function setupGame (options : GameOptions) {
         });
 
         var players : PlayerData[] = [];
-        for(var i = 0; i < options.numPlayers; i++){
+        for(var i = 0; i < ctx.numPlayers; i++){
             players.push(playerSetup(i));
         }
 

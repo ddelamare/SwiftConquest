@@ -8,17 +8,19 @@ body {
   --player-0-color: green;
   --player-1-color: red;
   --player-2-color: orange;
-  --player-3-color: white;
+  --player-3-color: lavender;
+  --outline-color: darkslategray;
   --hex-std-background: #adcbe3;
   --hex-alt-background: #63ace5;
   --hex-alt-2-background: #e7eff6;
 }
 
 .dark-theme {
-  --player-0-color: green;
-  --player-1-color: red;
-  --player-2-color: orange;
-  --player-3-color: white;
+  --player-0-color: lime;
+  --player-1-color: cyan;
+  --player-2-color: yellow;
+  --player-3-color: magenta;
+  --outline-color:white;
   --hex-std-background: #240750;
   --hex-alt-background: #344C64;
   --hex-alt-2-background: #577B8D;

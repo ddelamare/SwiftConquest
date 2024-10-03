@@ -3,18 +3,21 @@ import { Local } from 'boardgame.io/multiplayer';
 import { Game } from '../Game';
 import Board  from '../Board';
 import { createContext } from 'react';
+const numPlayers = 2;
 const GameClient = Client({
-  game: Game({}),
+  game: Game(),
   board: Board,
   multiplayer: Local(),
+  numPlayers
 });
 
 const ThemeContext = createContext(null);
 
+console.table(GameClient)
+
 const App = () => (
   <ThemeContext.Provider value="default">
-    <GameClient playerID="0" />
-    <GameClient playerID="1" />
+    {[...Array(numPlayers)].map((e, i) => <GameClient playerID={i.toString()} />)}
   </ThemeContext.Provider>
 );
 
