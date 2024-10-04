@@ -1,0 +1,23 @@
+- Reveal Tokens
+- Confirm Action Placement
+- Welcome Window
+- Rule Window
+- Lobby Select
+- Action Resolution Phases
+    -- Cycle through actions in order (Type, Player)
+- Action Targeting
+- Action Apply
+    -- Move
+        --- Defend
+        --- Aid
+    -- Gather
+- Variable turn order
+    - Focus Cards
+- Advantage Tokens
+- Initial turn order
+- Combat
+- Gold
+- Upgraded actions
+- Multiple Units per hex?
+- Active Players
+- Player icons?

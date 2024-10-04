@@ -2,7 +2,7 @@ import { INVALID_MOVE } from 'boardgame.io/core';
 import { endIfCond } from './Game.endIf';
 import { defaultOptions, GameOptions } from './Game.options';
 import { Extend, UnwrapProxy } from '../Utils/Objects'
-import { setupGame,  playerView } from './Game.setup';
+import { setupGame, playerView } from './Game.setup';
 import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
 import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
@@ -25,13 +25,13 @@ export function Game(options: GameOptions) {
         start: true,
         next: 'initialUnitPlacement',
         moves: {
-          pickAction: ({ G, playerID, } : MovePropsType , id) => {
+          pickAction: ({ G, playerID, }: MovePropsType, id) => {
             if (G.actionPool.length <= id) {
               return INVALID_MOVE;
             }
 
             var action: TokenType = UnwrapProxy(G.actionPool.splice(id, 1))[0];
-            action.owner = playerID ;
+            action.owner = playerID;
             var newPlayer = G.players[playerID];
             // Bypass local multiplayer double action bug
             if (!newPlayer.availableActions.some((elem) => elem.id === action.id)) {
@@ -39,14 +39,14 @@ export function Game(options: GameOptions) {
             }
           },
         },
-        endIf: ({ G } : MovePropsType) => (G.actionPool.length <= 0)
+        endIf: ({ G }: MovePropsType) => (G.actionPool.length <= 0)
       },
-      initialUnitPlacement:{
-        next: 'mainPhase',
+      initialUnitPlacement: {
+        next: 'actionPlacementPhase',
         moves: {
-          placeDude: ({ G, playerID }: MovePropsType , hexId) => {
-            var hexElem : HexType = FindElementById(G.map, hexId);
-            if (!hexElem || hexElem.units.length !== 0){
+          placeDude: ({ G, playerID }: MovePropsType, hexId) => {
+            var hexElem: HexType = FindElementById(G.map, hexId);
+            if (!hexElem || hexElem.units.length !== 0) {
               return INVALID_MOVE;
             }
             hexElem.units.push(CreateUnitForPlayer(playerID));
@@ -54,9 +54,10 @@ export function Game(options: GameOptions) {
         },
         endIf: ({ G }) => (GetHexesWithDudes(G).length >= 12)
       },
-      mainPhase: {
+      actionPlacementPhase: {
+        next: 'actionResolutionPhase',
         turn: {
-          activePlayers: { all: Stage.NULL },
+          activePlayers: { all: Stage.NULL, minMoves: 1, maxMoves: 1 },
         },
         moves: {
           selectToken: {
@@ -72,10 +73,10 @@ export function Game(options: GameOptions) {
               if (!G.players[playerID].selectedToken || !hex) {
                 return INVALID_MOVE;
               }
-              
-              var hexElem : HexType = FindElementById(G.map, hex.id);
-              var token = FindElementById(G.players[playerID].availableActions,G.players[playerID].selectedToken); 
-              if (!hexElem || !token || hexElem.tokens.length > 0 || GetUnitsForPlayer(hexElem, playerID).length == 0){
+
+              var hexElem: HexType = FindElementById(G.map, hex.id);
+              var token = FindElementById(G.players[playerID].availableActions, G.players[playerID].selectedToken);
+              if (!hexElem || !token || hexElem.tokens.length > 0 || GetUnitsForPlayer(hexElem, playerID).length === 0) {
                 return INVALID_MOVE;
               }
 
@@ -91,9 +92,9 @@ export function Game(options: GameOptions) {
               if (!tokenId) {
                 return INVALID_MOVE;
               }
-              var hexElem : HexType = FindElementById(G.map, hexId);
-              var token : TokenType = FindElementById(hexElem.tokens, tokenId); 
-              if (!hexElem || !token || hexElem.tokens.length === 0 || token.owner !== playerID){
+              var hexElem: HexType = FindElementById(G.map, hexId);
+              var token: TokenType = FindElementById(hexElem.tokens, tokenId);
+              if (!hexElem || !token || hexElem.tokens.length === 0 || token.owner !== playerID) {
                 return INVALID_MOVE;
               }
 
@@ -103,8 +104,18 @@ export function Game(options: GameOptions) {
             },
             redact: true,
             noLimit: true
+          },
+          lockInTokens: ({ G, ctx, events } : MovePropsType) => {
+            events!.endStage();
+            if (ctx.activePlayers && Object.keys(ctx.activePlayers).length === 1) {
+              console.log("All players have locked in their tokens");
+              events.endPhase();
+            }
           }
         }
+      },
+      actionResolutionPhase: {
+
       }
     },
     moves: {
@@ -116,7 +127,7 @@ export function Game(options: GameOptions) {
       }
     },
     endIf: endIfCond,
-    playerView: ({ G, ctx, playerID }) =>{ return playerView(G, ctx, playerID)},
+    playerView: ({ G, ctx, playerID }) => { return playerView(G, ctx, playerID) },
   };
 }
 

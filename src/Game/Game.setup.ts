@@ -8,7 +8,7 @@ import { Hexes } from '../Helpers/Data/Hexes';
 export type GameStateType = {
     map: HexType[],
     actionPool: TokenType[],
-    players: PlayerData[];
+    players: PlayerData[]
 }
 
 export function setupGame (options : GameOptions) {
@@ -54,7 +54,7 @@ function playerSetup(playerID) {
  };
 
 // filter data returned to each client to hide secret state (OPTIONAL)
-export function playerView(G, ctx, playerID) { 
+export function playerView(G : GameStateType, ctx, playerID) { 
     var players = G.players
     var scrubbedData = {};
 
@@ -62,14 +62,14 @@ export function playerView(G, ctx, playerID) {
         var maskedPlayer = {...player};
         // Mark tokens as unknown:
         maskedPlayer.availableActions = player.availableActions.map((a) => ({id: a.id, type: Action.Unknown, owner: a.owner, rank: null}));
-
+        
         return maskedPlayer;
     }
 
     var map = G.map.map((hex) => (
         {
             ...hex, 
-            tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner? token.type : Action.Unknown, owner: token.owner, rank: null}))
+            tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner || ctx.phase === "actionResolutionPhase" ? token.type : Action.Unknown, owner: token.owner, rank: null}))
         }));
 
     for(var player in players){

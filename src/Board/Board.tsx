@@ -8,6 +8,7 @@ import { KeysAsArray } from '../Utils/Objects'
 import { HexGrid, Layout } from 'react-hexgrid';
 import { GridGenerator } from 'react-hexgrid';
 import Patterns from './Patterns';
+import PlayerButton from '../UI/PlayerButton';
 
 export const MoveContext = createContext<any | null>(null);
 
@@ -30,7 +31,7 @@ class Board extends Component<BoardProps> {
       if (this.props.ctx.phase === "initialUnitPlacement"){
         this.props.moves.placeDude(hex.id);
       }
-      if (this.props.ctx.phase === "mainPhase"){
+      if (this.props.ctx.phase === "actionPlacementPhase"){
         this.props.moves.placeToken(hex);
       }
     };
@@ -38,6 +39,9 @@ class Board extends Component<BoardProps> {
       <MoveContext.Provider value={this.props.moves}>
       <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
         <div className="board">
+          <div className="ui-overlay">
+            <PlayerButton onClick={() => this.props.moves.lockInTokens?.()}>This is My Button</PlayerButton>
+          </div>
           <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
             <Patterns/>
             <Layout size={{ x: 6, y: 6 }}>

@@ -1,0 +1,10 @@
+.player-button {
+    width: 15vw;
+    height: 5vh;
+    background-color: chartreuse;
+    background: linear-gradient;
+    border: 2px solid #6a3c04;
+    border-radius: 25px;
+    background: rgb(207, 205, 5);
+    background: radial-gradient(circle, rgb(207, 205, 5) 34%, rgb(198, 153, 23) 94%, rgb(184, 33, 9) 100%);
+}
