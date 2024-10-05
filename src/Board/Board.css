@@ -23,7 +23,24 @@
   fill: var(--hex-alt-2-background);
 }
 
-.hex text{
+.hex text {
   font-size: 2px;
   fill: #000;
+}
+
+.ui-overlay {
+  position: absolute;
+  width: 100vh;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.ui-overlay-clickable {
+  pointer-events: auto;
+}
+
+.ui-overlay-bottom-right {
+  top: 90%;
+  left: 80%;
+  position: absolute;
 }
