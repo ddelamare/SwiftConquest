@@ -21,3 +21,4 @@
 - Multiple Units per hex?
 - Active Players
 - Player icons?
+- Localize

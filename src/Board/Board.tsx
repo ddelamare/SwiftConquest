@@ -9,6 +9,7 @@ import { HexGrid, Layout } from 'react-hexgrid';
 import { GridGenerator } from 'react-hexgrid';
 import Patterns from './Patterns';
 import PlayerButton from '../UI/PlayerButton';
+import { IsPlayerActive } from '../Helpers/Players';
 
 export const MoveContext = createContext<any | null>(null);
 
@@ -41,7 +42,7 @@ class Board extends Component<BoardProps> {
           <div className="board">
             <div className="ui-overlay">
               <div className="ui-overlay-bottom-right ui-overlay-clickable">
-                { this.props.ctx.phase === "actionPlacementPhase" && <PlayerButton onClick={() => this.props.moves.lockInTokens?.()}>Confirm Token Placement</PlayerButton>}
+                { this.props.ctx.phase === "actionPlacementPhase" && IsPlayerActive(this.props.ctx, this.props.playerID) && <PlayerButton onClick={() => this.props.moves.lockInTokens?.()}>Confirm Token Placement</PlayerButton>}
               </div>
             </div>
             <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
