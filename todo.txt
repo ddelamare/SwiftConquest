@@ -1,5 +1,5 @@
-- Reveal Tokens
-- Confirm Action Placement
+-* Reveal Tokens
+-* Confirm Action Placement
 - Welcome Window
 - Rule Window
 - Lobby Select
