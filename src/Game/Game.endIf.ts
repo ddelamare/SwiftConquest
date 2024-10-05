@@ -1,4 +1,4 @@
-// Return true if `cells` is in a winning configuration.
+// Return true if a player has met a victory condition
 
 
   export function endIfCond( {G, ctx} )  {

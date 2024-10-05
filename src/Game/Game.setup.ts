@@ -5,6 +5,7 @@ import Action from '../Helpers/Data/Actions';
 import Board from '../Board';
 import { HexType } from '../Component/Hex/Hex';
 import { Hexes } from '../Helpers/Data/Hexes';
+import { Ctx } from 'boardgame.io';
 export type GameStateType = {
     map: HexType[],
     actionPool: TokenType[],
@@ -54,7 +55,7 @@ function playerSetup(playerID) {
  };
 
 // filter data returned to each client to hide secret state (OPTIONAL)
-export function playerView(G : GameStateType, ctx, playerID) { 
+export function playerView({G, ctx, playerID} : {G: GameStateType, ctx : Ctx, playerID: string}) { 
     var players = G.players
     var scrubbedData = {};
 

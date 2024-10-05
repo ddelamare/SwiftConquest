@@ -10,8 +10,11 @@ import { GridGenerator } from 'react-hexgrid';
 import Patterns from './Patterns';
 import PlayerButton from '../UI/PlayerButton';
 import { IsPlayerActive } from '../Helpers/Players';
+import Gradients from './Gradients';
+import { Ctx } from 'boardgame.io';
 
 export const MoveContext = createContext<any | null>(null);
+export const GameCtx = createContext<Ctx | null>(null);
 
 class Board extends Component<BoardProps> {
   static propTypes = {
@@ -38,6 +41,7 @@ class Board extends Component<BoardProps> {
     };
     return (
       <MoveContext.Provider value={this.props.moves}>
+        <GameCtx.Provider value={this.props.ctx}>
         <div className={this.props.playerID === "0" ? "default-theme" : "dark-theme"}>
           <div className="board">
             <div className="ui-overlay">
@@ -47,6 +51,7 @@ class Board extends Component<BoardProps> {
             </div>
             <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
               <Patterns />
+              <Gradients />
               <Layout size={{ x: 6, y: 6 }}>
                 {this.props.G.map.map((hex) => <Hex key={hex.id} onClick={(e) => hexClickHandler(e, hex)} data={hex}>1</Hex>)}
                 <svg width="35" height="6" x="-49" y="-50" viewBox='0 0 70 10' style={{ fontSize: "3px" }}>
@@ -69,6 +74,7 @@ class Board extends Component<BoardProps> {
           </div>
           <button onClick={() => this.props.events.endPhase?.()}>End Phase</button>
         </div>
+        </GameCtx.Provider>
       </MoveContext.Provider>
     );
   }

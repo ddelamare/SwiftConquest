@@ -1,8 +1,6 @@
 -* Reveal Tokens
 -* Confirm Action Placement
-- Welcome Window
-- Rule Window
-- Lobby Select
+- QOL: Auto-play for testing
 - Action Resolution Phases
     -- Cycle through actions in order (Type, Player)
 - Action Targeting
@@ -22,3 +20,6 @@
 - Active Players
 - Player icons?
 - Localize
+- Welcome Window
+- Rule Window
+- Lobby Select

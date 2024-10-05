@@ -68,19 +68,13 @@ export function Game(options: GameOptions) {
         }
       },
       actionResolutionPhase: {
-
-      }
-    },
-    moves: {
-      clickCell: ({ G, playerID }, id) => {
-        if (G.cells[id] !== null) {
-          return INVALID_MOVE;
+        moves: {
+          selectToken: Moves.selectToken
         }
-        G.cells[id] = playerID;
       }
     },
     endIf: endIfCond,
-    playerView: ({ G, ctx, playerID }) => { return playerView(G, ctx, playerID) },
+    playerView: playerView,
   };
 }
 
