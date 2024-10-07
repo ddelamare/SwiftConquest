@@ -11,6 +11,10 @@
   stroke-width: .5;
 }
 
+.hex-highlight{
+  fill: chartreuse !important;
+}
+
 .hex-std {
   fill: var(--hex-std-background);
 }

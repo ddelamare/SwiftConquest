@@ -18,7 +18,9 @@
 - Upgraded actions
 - Multiple Units per hex?
 - Active Players
+- Collapsible Player Trays
 - Player icons?
+- Player Auto Names?
 - Localize
 - Welcome Window
 - Rule Window

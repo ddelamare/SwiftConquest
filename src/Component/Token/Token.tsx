@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './Token.css'
 import '../Component.css'
-import Action from '../../Helpers/Data/Actions'
+import Action from '../../Helpers/Actions'
 export type TokenType = {
     id: string,
     type: Action,

@@ -1,5 +1,5 @@
-import { HexType } from "../../Component/Hex/Hex";
-import { GetUniqueId } from "../../Utils/Objects";
+import { HexType } from "../Component/Hex/Hex";
+import { GetUniqueId } from "../Utils/Objects";
 
 
 export function CreateUnitForPlayer(playerID : string | number){

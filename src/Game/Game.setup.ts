@@ -1,10 +1,10 @@
 import {GameOptions} from './Game.options'
 import {TokenType} from '../Component/Token'
 import { GetUniqueId } from '../Utils/Objects';
-import Action from '../Helpers/Data/Actions';
+import Action from '../Helpers/Actions';
 import Board from '../Board';
 import { HexType } from '../Component/Hex/Hex';
-import { Hexes } from '../Helpers/Data/Hexes';
+import { Hexes } from '../Helpers/Hexes';
 import { Ctx } from 'boardgame.io';
 export type GameStateType = {
     map: HexType[],
@@ -70,7 +70,7 @@ export function playerView({G, ctx, playerID} : {G: GameStateType, ctx : Ctx, pl
     var map = G.map.map((hex) => (
         {
             ...hex, 
-            tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner || ctx.phase === "actionResolutionPhase" ? token.type : Action.Unknown, owner: token.owner, rank: null}))
+            tokens: hex.tokens.map((token) => ({id: token.id, type: playerID === token.owner || ctx.phase === "attackResolutionPhase" ? token.type : Action.Unknown, owner: token.owner, rank: null}))
         }));
 
     for(var player in players){

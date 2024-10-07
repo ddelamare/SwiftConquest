@@ -12,7 +12,6 @@ const GameClient = Client({
 });
 
 const ThemeContext = createContext(null);
-
 console.table(GameClient)
 
 const App = () => (

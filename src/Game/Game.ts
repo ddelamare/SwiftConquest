@@ -1,15 +1,16 @@
-import { INVALID_MOVE } from 'boardgame.io/core';
+import { ActivePlayers, INVALID_MOVE } from 'boardgame.io/core';
 import { endIfCond } from './Game.endIf';
 import { defaultOptions, GameOptions } from './Game.options';
 import { Extend, UnwrapProxy } from '../Utils/Objects'
 import { setupGame, playerView } from './Game.setup';
 import { TokenType } from '../Component/Token';
 import { Stage } from 'boardgame.io/core';
-import { FindElementById } from '../Helpers/Data/StateHelpers/Array';
+import { FindElementById } from '../Utils/Array';
 import { HexType } from '../Component/Hex/Hex';
-import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Data/Units';
+import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Units';
 import { MovePropsType } from './Game.types';
 import * as Moves from './Game.moves'
+import { TurnConfig } from 'boardgame.io';
 
 export function Game(options: GameOptions) {
   options = Extend(options, defaultOptions);
@@ -56,9 +57,10 @@ export function Game(options: GameOptions) {
         endIf: ({ G }) => (GetHexesWithDudes(G).length >= 12)
       },
       actionPlacementPhase: {
-        next: 'actionResolutionPhase',
+        next: 'attackResolutionPhase',
         turn: {
-          activePlayers: { all: Stage.NULL, minMoves: 1, maxMoves: 1 },
+          // Make all players active and wait until all players have made a move
+          activePlayers: ActivePlayers.ALL_ONCE,
         },
         moves: {
           selectToken: Moves.selectToken,
@@ -67,10 +69,42 @@ export function Game(options: GameOptions) {
           lockInTokens: Moves.lockInTokens
         }
       },
-      actionResolutionPhase: {
-        moves: {
-          selectToken: Moves.selectToken
-        }
+      attackResolutionPhase: {
+        next:'incomePhase',
+        moves: {},
+        turn: {
+          activePlayers: {
+            currentPlayer: 'attackSelection'
+          },
+          stages: {
+            attackSelection: {
+              moves: {
+                selectToken: Moves.selectToken,
+                selectTarget: Moves.selectTarget,
+                lockInTarget: Moves.lockInTarget
+              },
+              next:'aidSelection'
+            },
+            aidSelection: {
+              moves: {},
+              next:'bidSelection'
+            },
+            bidSelection: {
+              moves: {},
+              next:'attackResolution'
+            },
+            attackResolution: {
+              moves: {}
+            }
+          }
+        } satisfies TurnConfig
+      },
+      incomePhase:{
+        next:'resetPhase',
+        moves: {},
+      },
+      resetPhase:{
+        moves: {},
       }
     },
     endIf: endIfCond,
