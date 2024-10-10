@@ -4,9 +4,9 @@ import { HexType } from "../Component/Hex/Hex";
 import { GetUnitsForPlayer } from '../Helpers/Units';
 import { FindElementById } from '../Utils/Array';
 import { INVALID_MOVE } from 'boardgame.io/core';
-import { TokenType } from "../Component/Token";
-import { ClearHighlightedHexes, FindHexagonWithToken } from "../Helpers/Hexes";
-import { IsHexValidTargetForAction } from "../Helpers/Actions";
+import Token, { TokenType } from "../Component/Token";
+import { ClearHighlightedHexes, FindHexagonWithToken, GetNeighbors } from "../Helpers/Hexes";
+import Action, { IsHexValidTargetForAction } from "../Helpers/Actions";
 import { FindTokenInMap } from "../Helpers/Tokens";
 
 /* Token Actions */
@@ -122,8 +122,17 @@ export let lockInTarget: Move = ({ G, ctx, events, playerID }: MovePropsType) =>
     return INVALID_MOVE;
   }
 
-  // This should move the state into the next stage.
-  events!.endStage();
+  // Calculate and find all players who have nearby aid tokens.
+  var targetNeighbors = GetNeighbors(G, hex);
+  var sourceHex = FindHexagonWithToken(G, action.id)!;
+  var sourceNeighbors = GetNeighbors(G, sourceHex);
+  // Finds all nearby aid tokens except for on the hex being attacked
+  var validAidTokens = targetNeighbors.concat(sourceNeighbors).filter((h) => h.id != G.activeCombatHex).flatMap((h) => h.tokens).filter(t => t.type == Action.Aid);
+  // Generates the next phase map based on who has aid tokens nearby
+  var stateMap = validAidTokens.reduce<any>((prev, token, idx, arr) => { prev[token.owner || ""] = "aidSelection"; return prev;}, {})
+  events.setActivePlayers({
+    value: stateMap
+  });
 }
 
 

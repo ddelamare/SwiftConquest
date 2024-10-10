@@ -86,7 +86,9 @@ export function Game(options: GameOptions) {
               next:'aidSelection'
             },
             aidSelection: {
-              moves: {},
+              moves: {
+                selectToken: Moves.selectToken,
+              },
               next:'bidSelection'
             },
             bidSelection: {

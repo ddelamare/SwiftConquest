@@ -18,9 +18,9 @@ export function GetSelectedTokenId(G: GameStateType, playerID: string | null) : 
 }
 
 export function GetPlayerStage(ctx: Ctx, playerID: string | null){
-    if (!IsPlayerActive(ctx,playerID) || !playerID){
+    if (!IsPlayerActive(ctx,playerID) || !playerID || !ctx.activePlayers){
         return null
     }
 
-    return ctx.activePlayers![playerID];
+    return ctx.activePlayers[playerID];
 }
