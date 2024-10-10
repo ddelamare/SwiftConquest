@@ -100,10 +100,6 @@ export let selectTarget: Move = ({ G, ctx, events, playerID }: MovePropsType, he
   var selectedToken: TokenType = FindElementById(selectedTokenHex.tokens, G.players[playerID].selectedToken);
 
   if (selectedTokenHex && IsHexValidTargetForAction(G, hex, selectedToken)) {
-    //TODO: currently there is a bug where clicking on another players
-    // Token while some hexes are highlighted puts the game into a weird state
-    // Where the hexes are highlighted, but nothing is clickable because
-    // the other player's token is selected.
     console.log("Attacked!");
   }
 }

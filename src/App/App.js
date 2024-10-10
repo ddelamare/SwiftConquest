@@ -16,7 +16,7 @@ console.table(GameClient)
 
 const App = () => (
   <ThemeContext.Provider value="default">
-    {[...Array(numPlayers)].map((e, i) => <GameClient playerID={i.toString()} />)}
+    {[...Array(numPlayers)].map((e, i) => <GameClient key={i} playerID={i.toString()} />)}
   </ThemeContext.Provider>
 );
 
