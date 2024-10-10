@@ -9,7 +9,8 @@ import { Ctx } from 'boardgame.io';
 export type GameStateType = {
     map: HexType[],
     actionPool: TokenType[],
-    players: PlayerData[]
+    players: PlayerData[],
+    activeCombatHex: string | null
 }
 
 export function setupGame (options : GameOptions) {
@@ -36,7 +37,8 @@ export function setupGame (options : GameOptions) {
         return {
             map: map,
             actionPool: startingPool,
-            players
+            players,
+            activeCombatHex: null
         } satisfies GameStateType
     }
 }

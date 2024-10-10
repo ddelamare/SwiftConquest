@@ -4,9 +4,10 @@ import { HexType } from "../Component/Hex/Hex";
 import { GetUnitsForPlayer } from '../Helpers/Units';
 import { FindElementById } from '../Utils/Array';
 import { INVALID_MOVE } from 'boardgame.io/core';
-import Token, { TokenType } from "../Component/Token";
-import { ClearHighlightedHexes, FindHexagonWithToken, GetNeighbors } from "../Helpers/Hexes";
+import { TokenType } from "../Component/Token";
+import { ClearHighlightedHexes, FindHexagonWithToken } from "../Helpers/Hexes";
 import { IsHexValidTargetForAction } from "../Helpers/Actions";
+import { FindTokenInMap } from "../Helpers/Tokens";
 
 /* Token Actions */
 export let selectToken: Move = {
@@ -17,13 +18,13 @@ export let selectToken: Move = {
     // Find any hexes with the token id.
     var hex = FindHexagonWithToken(G, id);
     if (hex) {
-      var token: TokenType = FindElementById(hex.tokens, id)!;
-      if (token.owner === playerID) {
-        
+      var actionToken: TokenType = FindElementById(hex.tokens, id)!;
+      if (actionToken.owner === playerID) {
+
         ClearHighlightedHexes(G);
 
         G.map.forEach(h => {
-          if (IsHexValidTargetForAction(G, h, token)) {
+          if (IsHexValidTargetForAction(G, h, actionToken)) {
             h.isHighlighted = true;
           }
         });
@@ -86,13 +87,13 @@ export let lockInTokens: Move = ({ G, ctx, events }: MovePropsType) => {
 
 /* Start Action Targeting */
 export let selectTarget: Move = ({ G, ctx, events, playerID }: MovePropsType, hexOrId: HexType | string) => {
-  var hex = typeof hexOrId === "string"? FindElementById(G.map, hexOrId) : hexOrId;
+  var hex = typeof hexOrId === "string" ? FindElementById(G.map, hexOrId) : hexOrId;
   if (!G.players[playerID].selectedToken || !hex) {
     return INVALID_MOVE;
   }
 
   var selectedTokenHex = FindHexagonWithToken(G, G.players[playerID].selectedToken);
-  
+
   if (!selectedTokenHex) {
     return INVALID_MOVE;
   }
@@ -100,11 +101,29 @@ export let selectTarget: Move = ({ G, ctx, events, playerID }: MovePropsType, he
   var selectedToken: TokenType = FindElementById(selectedTokenHex.tokens, G.players[playerID].selectedToken);
 
   if (selectedTokenHex && IsHexValidTargetForAction(G, hex, selectedToken)) {
-    console.log("Attacked!");
+    ClearHighlightedHexes(G);
+    // Refetch the ref so highlighting works
+    FindElementById(G.map, hex.id).isHighlighted = true;
+    G.activeCombatHex = hex.id;  
   }
 }
 
 /* End Action Targeting */
-export let lockInTarget: Move = ({ G, ctx, events }: MovePropsType) => { }
+export let lockInTarget: Move = ({ G, ctx, events, playerID }: MovePropsType) => {
+
+  if (!G.activeCombatHex || !G.players[playerID].selectedToken) {
+    return INVALID_MOVE;
+  }
+
+  // Validate that the targeted hex is acceptable
+  var hex = FindElementById(G.map, G.activeCombatHex);
+  var action = FindTokenInMap(G, G.players[playerID].selectedToken);
+  if (!IsHexValidTargetForAction(G, hex, action)) {
+    return INVALID_MOVE;
+  }
+
+  // This should move the state into the next stage.
+  events!.endStage();
+}
 
 

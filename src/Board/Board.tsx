@@ -13,6 +13,7 @@ import { IsPlayerActive } from '../Helpers/Players';
 import Gradients from './Gradients';
 import { Ctx } from 'boardgame.io';
 import { GameStateType } from '../Game/Game.setup';
+import { IsReadyToLockInTarget } from '../Helpers/Actions';
 
 export const MoveContext = createContext<any | null>(null);
 export const GameCtx = createContext<Ctx | null>(null);
@@ -58,6 +59,7 @@ class Board extends Component<BoardProps> {
                 <div className="ui-overlay">
                   <div className="ui-overlay-bottom-right ui-overlay-clickable">
                     {this.props.ctx.phase === "actionPlacementPhase" && IsPlayerActive(this.props.ctx, this.props.playerID) && <PlayerButton onClick={() => this.props.moves.lockInTokens?.()}>Confirm Token Placement</PlayerButton>}
+                    {this.props.ctx.phase === "attackResolutionPhase" && IsReadyToLockInTarget(this.props.G, this.props.ctx, this.props.playerID) && <PlayerButton onClick={() => this.props.moves.lockInTarget?.()}>Confirm Target Hex</PlayerButton>}
                   </div>
                 </div>
                 <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
