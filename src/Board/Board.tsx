@@ -48,8 +48,14 @@ class Board extends Component<BoardProps> {
         }
       }
 
+      
 
     };
+
+    if (!IsPlayerActive(this.props.ctx, this.props.playerID)){
+      return <div></div>
+    }
+
     return (
       <MoveContext.Provider value={this.props.moves}>
         <GameCtx.Provider value={this.props.ctx}>
@@ -81,7 +87,8 @@ class Board extends Component<BoardProps> {
                         })}
                       </svg>
                     })}
-                    <text x={-9} y={-40} fontSize="5px">{this.props.ctx.phase}</text>
+                    <text x={-9} y={-45} fontSize="5px">{this.props.ctx.phase}</text>
+                    <text x={-9} y={-40} fontSize="5px">{JSON.stringify(this.props.ctx.activePlayers)}</text>
                   </Layout>
                 </HexGrid>
               </div>

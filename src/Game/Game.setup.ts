@@ -51,7 +51,7 @@ type PlayerData = {
 // define a function to initialize each player’s state
 function playerSetup(playerID) { 
     return {
-        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Gather, owner: playerID + "", rank: null}],
+        availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Gather, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Aid, owner: playerID + "", rank: null}],
         selectedToken: null
     } satisfies PlayerData
  };
