@@ -45,14 +45,16 @@ export function setupGame (options : GameOptions) {
 
 type PlayerData = {
     availableActions: Array<TokenType>,
-    selectedToken: string | null
+    selectedToken: string | null,
+    gold: number
 }
 
 // define a function to initialize each player’s state
 function playerSetup(playerID) { 
     return {
         availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Gather, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Aid, owner: playerID + "", rank: null}],
-        selectedToken: null
+        selectedToken: null,
+        gold: 10
     } satisfies PlayerData
  };
 

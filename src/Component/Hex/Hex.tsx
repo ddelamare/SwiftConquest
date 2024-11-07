@@ -8,6 +8,7 @@ import { MoveContext, GameCtx, GameState } from '../../Board'
 import { Ctx } from 'boardgame.io';
 import { FindTokenInMap } from '../../Helpers/Tokens';
 import { GameStateType } from '../../Game/Game.setup';
+import { IsPlayerActive } from '../../Helpers/Players';
 type HexProps = {
   children: string | JSX.Element | JSX.Element[] | null,
   onClick: React.MouseEventHandler<SVGAElement>;
@@ -34,7 +35,7 @@ const Hex = (props: HexProps) => {
     }
     if (gameState && gameCtx!.phase === "attackResolutionPhase") {
       var token = FindTokenInMap(gameState, id);
-      if (token && gameCtx!.currentPlayer === token.owner) {
+      if (token && IsPlayerActive(gameCtx!,token.owner)) {
         moves.selectToken(id, hexId);
       }
       // Pass through to hex click
@@ -47,7 +48,7 @@ const Hex = (props: HexProps) => {
   var sumCoord = Math.abs(((props.data.tile.q - props.data.tile.r) + 9) % 3);
   return <Hexagon className={"hex " + (sumCoord === 0 ? "hex-std " : sumCoord === 1 ? "hex-alt " : "hex-alt-2 ") + (props.data.isHighlighted ? 'hex-highlight ' : '')} key={props.data.id} onClick={props.onClick} q={props.data.tile.q} r={props.data.tile.r} s={props.data.tile.s}>
     {props.data.type === Hexes.Mine ? <circle fill='#mineHex' r="5"></circle> : ''}
-    {props.data.tokens.map((token, id) => { return <g key={id} style={{ transform: "scale(75%)" }} onClick={(e) => { tokenClick(e, token.id, props.data.id); e.stopPropagation() }}><Token type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token></g> })}
+    {props.data.tokens.map((token, id) => { return <g key={id} style={{ transform: "scale(75%)" }} onClick={(e) => { tokenClick(e, token.id, props.data.id); e.stopPropagation() }}><Token tid={token.id} type={token.type} owner={token.owner} rank={token.rank} renderSvgTag={false}></Token></g> })}
     {props.data.units.map((unit, id) => <Unit key={id} owner={unit.owner}></Unit>)}
     {props.children}
   </Hexagon>

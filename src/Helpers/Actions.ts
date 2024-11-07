@@ -6,6 +6,7 @@ import { FindHexagonWithToken, IsNeighbor } from "./Hexes";
 import { GetSelectedTokenId, IsPlayerActive, GetPlayerStage } from "./Players";
 import { FindElementById } from "../Utils/Array";
 import { FindTokenInMap } from "./Tokens";
+import { act } from "react";
 
 enum Action {
     Unknown = 0,
@@ -25,6 +26,12 @@ const IsHexValidTargetForAction = function(G : GameStateType, hex: HexType, acti
     if (action.type === Action.Attack) {
         // Hex is valid to attack if it's empty or all units are another players
         return !hex.units.some((u) => u.owner === action.owner);
+    }
+    else if (action.type === Action.Aid) {
+        if (!G.activeCombatHex)
+            return false;
+
+        return hex.id === G.activeCombatHex;
     }
 }
 
