@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Token, { TokenType } from '../Token';
-import { Hexagon, Text } from 'react-hexgrid';
+import { Hexagon } from 'react-hexgrid';
 import { HexagonProps } from 'react-hexgrid/lib/Hexagon/Hexagon';
 import { Hexes } from '../../Helpers/Hexes';
 import Unit, { UnitType } from '../Unit/Unit'

@@ -4,7 +4,7 @@ import { defaultOptions, GameOptions } from './Game.options';
 import { Extend, UnwrapProxy } from '../Utils/Objects'
 import { setupGame, playerView } from './Game.setup';
 import { TokenType } from '../Component/Token';
-import { Stage } from 'boardgame.io/core';
+
 import { FindElementById } from '../Utils/Array';
 import { HexType } from '../Component/Hex/Hex';
 import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Units';
