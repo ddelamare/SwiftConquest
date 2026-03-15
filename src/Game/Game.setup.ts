@@ -10,7 +10,16 @@ export type GameStateType = {
     map: HexType[],
     actionPool: TokenType[],
     players: PlayerData[],
-    activeCombatHex: string | null
+    activeCombatHex: string | null,
+    attackerID: string | null
+}
+
+export type PlayerData = {
+    availableActions: Array<TokenType>,
+    selectedToken: string | null,
+    gold: number,
+    gems: number,
+    bid: number | null
 }
 
 export function setupGame (options : GameOptions) {
@@ -38,23 +47,22 @@ export function setupGame (options : GameOptions) {
             map: map,
             actionPool: startingPool,
             players,
-            activeCombatHex: null
+            activeCombatHex: null,
+            attackerID: null
         } satisfies GameStateType
     }
 }
 
-type PlayerData = {
-    availableActions: Array<TokenType>,
-    selectedToken: string | null,
-    gold: number
-}
+
 
 // define a function to initialize each player’s state
 function playerSetup(playerID) { 
     return {
         availableActions: [{id: GetUniqueId(), type: Action.Attack, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Gather, owner: playerID + "", rank: null}, {id: GetUniqueId(), type: Action.Aid, owner: playerID + "", rank: null}],
         selectedToken: null,
-        gold: 10
+        gold: 10,
+        gems: 0,
+        bid: null
     } satisfies PlayerData
  };
 
@@ -67,7 +75,8 @@ export function playerView({G, ctx, playerID} : {G: GameStateType, ctx : Ctx, pl
         var maskedPlayer = {...player};
         // Mark tokens as unknown:
         maskedPlayer.availableActions = player.availableActions.map((a) => ({id: a.id, type: Action.Unknown, owner: a.owner, rank: null}));
-        
+        // Hide bid from opponents during blind bidding
+        maskedPlayer.bid = null;
         return maskedPlayer;
     }
 

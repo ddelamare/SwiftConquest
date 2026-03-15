@@ -9,7 +9,7 @@ import { HexGrid, Layout } from 'react-hexgrid';
 import { GridGenerator } from 'react-hexgrid';
 import Patterns from './Patterns';
 import PlayerButton from '../UI/PlayerButton';
-import { IsPlayerActive } from '../Helpers/Players';
+import { IsPlayerActive, GetPlayerStage } from '../Helpers/Players';
 import Gradients from './Gradients';
 import { Ctx } from 'boardgame.io';
 import { GameStateType } from '../Game/Game.setup';
@@ -20,7 +20,7 @@ export const GameCtx = createContext<Ctx | null>(null);
 export const GameState = createContext<GameStateType | null>(null);
 export const PlayerID = createContext<string | null>(null);
 
-class Board extends Component<BoardProps> {
+class Board extends Component<BoardProps, { bidAmount: number }> {
   static propTypes = {
     G: PropTypes.any.isRequired,
     ctx: PropTypes.any.isRequired,
@@ -33,6 +33,8 @@ class Board extends Component<BoardProps> {
   };
 
   static HexMap = GridGenerator.hexagon(3);
+
+  state = { bidAmount: 0 };
 
   render() {
     var hexClickHandler = (evt, hex) => {
@@ -54,6 +56,10 @@ class Board extends Component<BoardProps> {
       return <div></div>
     }
 
+    const currentPlayer = this.props.G.players[this.props.playerID!];
+    const isInBidStage = GetPlayerStage(this.props.ctx, this.props.playerID) === 'bidSelection';
+    const maxBid = currentPlayer?.gold ?? 0;
+
     return (
       <MoveContext.Provider value={this.props.moves}>
         <GameCtx.Provider value={this.props.ctx}>
@@ -65,6 +71,22 @@ class Board extends Component<BoardProps> {
                   <div className="ui-overlay-bottom-right ui-overlay-clickable">
                     {this.props.ctx.phase === "actionPlacementPhase" && IsPlayerActive(this.props.ctx, this.props.playerID) && <PlayerButton onClick={() => this.props.moves.lockInTokens?.()}>Confirm Token Placement</PlayerButton>}
                     {this.props.ctx.phase === "attackResolutionPhase" && IsReadyToLockInTarget(this.props.G, this.props.ctx, this.props.playerID) && <PlayerButton onClick={() => this.props.moves.lockInTarget?.()}>Confirm Target Hex</PlayerButton>}
+                    {isInBidStage && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
+                        <span style={{ fontSize: '12px' }}>Combat — submit your bid (gold: {maxBid})</span>
+                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={maxBid}
+                            value={this.state.bidAmount}
+                            onChange={e => this.setState({ bidAmount: Math.min(maxBid, Math.max(0, parseInt(e.target.value) || 0)) })}
+                            style={{ width: '60px' }}
+                          />
+                          <PlayerButton onClick={() => this.props.moves.submitBid(this.state.bidAmount)}>Submit Bid</PlayerButton>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <HexGrid width="100vw" height="100vh" viewBox="-50 -50 100 100">
@@ -79,11 +101,13 @@ class Board extends Component<BoardProps> {
                       })}
                     </svg>
                     {KeysAsArray(this.props.G.players).map((player, pid) => {
-                      return <svg key={pid} width="35" height="6" x="-49" y={-50 + ((pid + 1) * 6)} viewBox='0 0 70 10' style={{ fontSize: "3px" }}>
+                      return <svg key={pid} width="35" height="6" x="-49" y={-50 + ((pid + 1) * 6)} viewBox='0 0 70 12' style={{ fontSize: "3px" }}>
                         <rect width="100%" height="100%" rx="1" fillOpacity="0" strokeOpacity="1" stroke='black' strokeWidth=".5"></rect>
                         {player.availableActions.map((token, i) => {
                           return (<g transform={`translate(${11 * (i + .5)},5)`} key={this.props.playerID + "ava" + token.id} onClick={() => { this.props.moves.selectToken(token.id) }}><Token tid={token.id} type={token.type} owner={token.owner} rank={null} renderSvgTag={false}></Token></g>)
                         })}
+                        <text x={48} y={4} fontSize="3px" fill="#f4c430">G:{player.gold}</text>
+                        <text x={48} y={9} fontSize="3px" fill="#00cfcf">S:{player.gems}</text>
                       </svg>
                     })}
                     <text x={-9} y={-45} fontSize="5px">{this.props.ctx.phase}</text>
