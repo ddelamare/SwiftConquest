@@ -36,6 +36,11 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
 
   state = { bidAmount: 0 };
 
+  private clampBidAmount(value: string, max: number): number {
+    const parsed = parseInt(value, 10);
+    return isNaN(parsed) ? 0 : Math.min(max, Math.max(0, parsed));
+  }
+
   render() {
     var hexClickHandler = (evt, hex) => {
       if (this.props.ctx.phase === "initialUnitPlacement") {
@@ -80,7 +85,7 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
                             min={0}
                             max={maxBid}
                             value={this.state.bidAmount}
-                            onChange={e => this.setState({ bidAmount: Math.min(maxBid, Math.max(0, parseInt(e.target.value) || 0)) })}
+                            onChange={e => this.setState({ bidAmount: this.clampBidAmount(e.target.value, maxBid) })}
                             style={{ width: '60px' }}
                           />
                           <PlayerButton onClick={() => this.props.moves.submitBid(this.state.bidAmount)}>Submit Bid</PlayerButton>
@@ -106,8 +111,8 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
                         {player.availableActions.map((token, i) => {
                           return (<g transform={`translate(${11 * (i + .5)},5)`} key={this.props.playerID + "ava" + token.id} onClick={() => { this.props.moves.selectToken(token.id) }}><Token tid={token.id} type={token.type} owner={token.owner} rank={null} renderSvgTag={false}></Token></g>)
                         })}
-                        <text x={48} y={4} fontSize="3px" fill="#f4c430">G:{player.gold}</text>
-                        <text x={48} y={9} fontSize="3px" fill="#00cfcf">S:{player.gems}</text>
+                        <text x={48} y={4} fontSize="3px" fill="#f4c430"><title>Gold</title>Gold:{player.gold}</text>
+                        <text x={48} y={9} fontSize="3px" fill="#00cfcf"><title>Gems (victory points)</title>Gems:{player.gems}</text>
                       </svg>
                     })}
                     <text x={-9} y={-45} fontSize="5px">{this.props.ctx.phase}</text>

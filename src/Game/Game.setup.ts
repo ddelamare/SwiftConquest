@@ -14,6 +14,13 @@ export type GameStateType = {
     attackerID: string | null
 }
 
+/**
+ * Per-player runtime state.
+ * - `gold`: general-purpose resource; used for combat bids and is the Alt-2 win condition (≥30).
+ * - `gems`: victory-point track; earned only by placing a Gather token on a controlled mine. Win at ≥10.
+ * - `bid`: the gold amount secretly committed for the current combat; null when no combat is active.
+ *          Set in `submitBid`, consumed and cleared in `resolveCombat`, hidden from opponents via `playerView`.
+ */
 export type PlayerData = {
     availableActions: Array<TokenType>,
     selectedToken: string | null,

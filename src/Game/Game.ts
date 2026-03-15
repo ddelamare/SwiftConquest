@@ -113,7 +113,7 @@ export function Game(options: GameOptions) {
             if (hex.type !== Hexes.Mine) return;
             // A mine is controlled when exactly one player has units there
             const owners = hex.units.map(u => u.owner as string);
-            const uniqueOwners = owners.filter((o, i) => owners.indexOf(o) === i);
+            const uniqueOwners = Array.from(new Set(owners));
             if (uniqueOwners.length !== 1) return;
             const controllerID = uniqueOwners[0];
             if (!G.players[controllerID]) return;
@@ -137,12 +137,11 @@ export function Game(options: GameOptions) {
         onBegin: ({ G }) => {
           // Return all tokens from the map back to their owner's hand
           G.map.forEach((hex: HexType) => {
-            for (let i = hex.tokens.length - 1; i >= 0; i--) {
-              const token: TokenType = hex.tokens[i];
+            while (hex.tokens.length > 0) {
+              const token: TokenType = hex.tokens.pop()!;
               if (token.owner !== null && G.players[token.owner]) {
                 G.players[token.owner].availableActions.push(token);
               }
-              hex.tokens.splice(i, 1);
             }
           });
 

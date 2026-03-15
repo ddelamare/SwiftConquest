@@ -29,8 +29,10 @@ function resolveCombat(G: GameStateType) {
   // Defender: first unit owner on the target hex that is not the attacker
   const defenderID: string | null = targetHex.units.find(u => u.owner !== attackerID)?.owner ?? null;
 
+  if (!G.players[attackerID]) return;
+
   // Calculate combat strengths
-  const attackerBid = G.players[attackerID]?.bid ?? 0;
+  const attackerBid = G.players[attackerID].bid ?? 0;
   const attackerUnits = sourceHex.units.filter(u => u.owner === attackerID).length;
   const attackerStrength = attackerUnits + attackerBid;
 
@@ -46,7 +48,7 @@ function resolveCombat(G: GameStateType) {
     G.players[defenderID].gold = Math.max(0, G.players[defenderID].gold - defenderBid);
   }
 
-  // Resolve: ties always go to the attacker
+  // >= ensures ties favor the attacker (passive defense is never the dominant strategy)
   if (attackerStrength >= defenderStrength) {
     // Attacker wins: move all attacker units to target hex
     for (let i = sourceHex.units.length - 1; i >= 0; i--) {
