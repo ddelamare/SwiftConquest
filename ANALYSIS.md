@@ -116,19 +116,133 @@ This is fully deterministic (gold totals are known) and provides a built-in catc
 
 ---
 
-### 7. Victory Condition — Mine Control
+### 7. Victory Condition — In-Depth Analysis
 
 **The problem:** There is no `endIf` condition. The game runs forever.
 
-**The solution:** A player wins if, **at the end of any Income Phase**, they control a **majority of the Mine hexes on the map** (currently 3 of 4, but the threshold should always be `floor(mineCount / 2) + 1` so the condition scales if the map changes).
+The `Game.endIf.ts` file currently always returns `false` and is the right place to implement whichever condition is chosen. Four candidates are evaluated below, followed by two alternatives.
 
-- This is a clear, achievable objective that both players can evaluate at any time.
-- It requires active forward play — you cannot win by staying in your starting position.
-- It is fully deterministic — mine control is an objective board state.
+---
 
-A secondary condition (as a tiebreaker or alternative): a player also wins if they have **accumulated 30 gold** at any point, representing economic dominance. This rewards the Gather-focused player who successfully defends mines over many rounds.
+#### Candidate A — Gems as Victory Points (Mines → Gems → Win at X Gems)
 
-The `Game.endIf.ts` file currently always returns `false` and is the right place to implement this check.
+Mines no longer produce gold directly. Instead, each Mine hex controlled at the end of an Income Phase yields **1 Gem** to its controlling player. The first player to accumulate a target number of Gems (e.g., 10) wins.
+
+**Strengths:**
+- Gems are a dedicated progress meter that is always visible to every player — everyone can see exactly how close each opponent is to winning. This creates escalating pressure over every round of the game.
+- Because Gems are the *only* win condition, every strategic decision eventually traces back to mine control. There is no split between military and economic win paths to reason about.
+- The target Gem count is a single tuning knob. If games end too quickly, raise it. If they drag, lower it. This is the easiest condition to balance through playtesting.
+- Gems cannot be spent or lost, so there is no runaway-leader effect from compound spending. A player who falls behind on mines falls behind at the same rate, making catch-up always possible.
+
+**Weaknesses:**
+- Mines need a second resource type (Gems) in addition to the gold used for combat bids. The `GameStateType` and `playerView` would need a `gems` field per player, and the Income Phase implementation must credit Gems separately from gold.
+- Because Gems cannot be spent, a player with a large Gem lead has very little incentive to risk their units in unnecessary combats in the late game. They can slow-play and coast to the win. This requires the target count to be set low enough that the game never reaches a comfortable cruising phase.
+- Does not address stalemate on its own — players still need a reason to fight over non-mine hexes. Pair with the gold-bid combat system (*Combat Resolution via Unit Strength and Gold Bids*) to keep non-mine territory relevant as staging ground for mine attacks.
+
+**Verdict:** ✅ **Recommended candidate.** It is the clearest, most legible win condition in the set. Every player always knows the score. The implementation is straightforward: add a `gems: number` field per player, credit it in the Income Phase for each controlled mine, and check it in `endIf`. The gold-bid combat system (*Combat Resolution via Unit Strength and Gold Bids*) remains intact as the combat economy, distinct from the Gem victory track.
+
+---
+
+#### Candidate B — Fixed Rounds, Most Gold Wins
+
+The game lasts a fixed number of rounds (e.g., 15). When the final Reset Phase completes, the player with the most gold wins. Mines produce gold each Income Phase as described in Section 2.
+
+**Strengths:**
+- Guarantees the game ends. There is no scenario where the game runs indefinitely. This is valuable for any multiplayer format where players need to know roughly how long a session will take.
+- The "fixed duration" format is familiar and easy to explain: "we play 15 rounds, then count gold."
+- Encourages a different kind of strategic depth in the mid-to-late game: a player who is already winning on gold can afford to play conservatively, while a trailing player *must* take risks to close the gap before time runs out.
+
+**Weaknesses:**
+- Gold is already the resource used for combat bids (*Combat Resolution via Unit Strength and Gold Bids*). Winning by hoarding the most gold creates a **direct conflict** between using gold to win combats and saving gold to win the game. A player who bids heavily and wins every fight may lose the gold race to a player who never fought at all. This undermines the mine-control theme — the safest path to victory is to hoard, not to fight.
+- Determining the right round count requires extensive playtesting. Too few rounds and the game never develops; too many and it drags. Round count is also map- and player-count-dependent, making this hard to tune.
+- "Most gold at game end" is a static snapshot victory. Players can spend the last two rounds doing nothing, knowing that their accumulated gold is already enough to win. This is the definition of the stalemate the game design is trying to avoid.
+- If gold is the win condition, the Gather action (doubled mine income) becomes overwhelmingly powerful compared to Attack. The optimal strategy collapses to: control one mine, Gather every round, never fight. This eliminates most of the game's interesting decisions.
+
+**Verdict:** ❌ **Not recommended** without a major restructuring. The dual use of gold as both the combat bid resource and the victory metric creates an irreconcilable tension. If this candidate is chosen, gold bids must be removed from combat resolution and replaced with a different tie-breaking system — which changes the game significantly.
+
+---
+
+#### Candidate C — Total Domination (Wipe All Players Off the Map)
+
+A player wins by eliminating every unit belonging to every opponent. A player is eliminated when they have no units remaining on the board.
+
+**Strengths:**
+- The most instinctively understandable win condition. Every player knows exactly what they need to do: destroy everything.
+- Encourages constant aggressive forward play — there is never a reason to stop attacking.
+- Fully deterministic and easy to check in `endIf`: iterate `G.map`, count units per player, return winner if only one player has units remaining.
+
+**Weaknesses:**
+- Total domination victory conditions are notorious for producing **snowball effects**. A player who wins a few early combats has more units, which makes it easier to win the next combat, which gives more units, and so on. The losing player has no meaningful catch-up mechanism and may spend the majority of the game in a losing position they cannot escape. This is especially punishing in a 2-player game.
+- The gold-bid combat system (*Combat Resolution via Unit Strength and Gold Bids*) partially mitigates snowballing (the richer player can be outbid), but once units are gone, there is nothing left to bid *with*. A player who loses their last mine cannot bid aggressively, which makes it even harder to survive.
+- In a 3+ player game, total domination incentivizes *kingmaking* — two players gang up on the third, eliminate them, and then fight each other. The first player eliminated has no influence over who wins the game. This is generally considered a negative player experience.
+- Game length is unpredictable. Two evenly matched players could play indefinitely if neither can achieve a decisive advantage. This reintroduces the stalemate problem.
+
+**Verdict:** ⚠️ **Viable for 2-player only, with reservations.** The snowball risk is real but manageable in a 2-player format. For 3+ players, the kingmaking problem and elimination experience are significant design liabilities. If the target player count is strictly 2, total domination is a clean and legible condition. For any broader scope, pair it with a respawn or reinforcement mechanic to keep eliminated players engaged.
+
+---
+
+#### Candidate D — Game Ends When All Tokens Have Been Drafted
+
+The shared action pool starts with a finite number of tokens. Once all tokens have been drafted and none remain in the pool, the game ends. The player controlling the most hexes (or mines specifically) at that moment wins.
+
+**Strengths:**
+- Game length is deterministic and bounded. With a known pool size and player count, the maximum number of draft rounds is calculable in advance.
+- Encourages early aggressive play — the token pool is a countdown clock. Players who spend early rounds positioning conservatively may run out of time to execute their strategy.
+
+**Weaknesses:**
+- The current implementation has only **4 tokens in the shared pool** (one Attack, one Defend, one Gather, one Aid), and they are returned to the pool each Reset Phase. This means the pool never actually depletes — the Reset Phase refills it. To make this condition work, tokens would need to be *consumed* rather than recycled, which fundamentally changes the action economy.
+- Each player also starts with 3 personal action tokens that are separate from the shared pool (`availableActions` in `playerSetup`). It is ambiguous whether those personal tokens count toward "all tokens drafted" or only the shared pool tokens. This ambiguity would need to be resolved in the rules.
+- "Most hexes controlled when pool empties" introduces a board-state counting mechanic that is harder to track than a simple numeric threshold. If the end condition is "most mines" rather than "most hexes," it is cleaner but then approaches Candidate A territory.
+- The current 4-token pool drafts entirely in one round. The "all tokens drafted" condition would either end the game in one round or require a significant pool expansion (10–20+ distinct tokens with varied effects) to produce a meaningful game arc. That is a substantial scope increase.
+
+**Verdict:** ❌ **Not recommended in the current architecture** without substantial rework to the token economy. The pool recycling in the Reset Phase must be replaced with token consumption, the personal starting tokens must be explicitly handled, and the pool must be large enough to span multiple meaningful rounds. This is worth considering if the game design ever moves toward a deck-building or card-draft model, but it does not fit the current loop.
+
+---
+
+#### Alternative 1 — Territorial Majority (Control More Than Half the Map)
+
+A player wins if, at the end of any Income Phase, they have units on **more than half of all hex tiles** on the board (currently more than 18 of 37). This is a pure territorial condition with no resource tracking.
+
+**Strengths:**
+- Immediately intuitive. The board is the score.
+- Scales naturally with map size — the threshold is always a majority of tiles, computed dynamically.
+- Encourages a broad offensive strategy rather than a mine-camping strategy.
+
+**Weaknesses:**
+- With 37 hexes and early-game units capped at 12 (one per hex in `initialUnitPlacement`), controlling 19+ hexes requires substantial reinforcement mechanics that do not currently exist. Income would need to produce new units, not just gold.
+- A player who spreads across 19 hexes will have very thin coverage on each hex (likely 1 unit each), making them extremely vulnerable to attack. The win condition and the defensive realities may be incompatible unless unit stacking is introduced.
+
+**Verdict:** Worth considering as a late-game option once unit production via income is implemented.
+
+---
+
+#### Alternative 2 — Hybrid Track (Gems + Gold Threshold)
+
+Mines produce Gems (Candidate A). Additionally, a player can trigger an instant win by accumulating **30 gold** at any point — representing total economic dominance even without mine control. Both conditions are checked at the end of each Income Phase.
+
+**Strengths:**
+- Creates two legitimate strategic paths: the military path (fight for mines, collect Gems) and the economic path (Gather heavily, accumulate gold).
+- The gold-win threshold is a natural pressure valve. A player who is behind on Gems but ahead on gold has a credible alternate path to victory, keeping them engaged rather than conceding.
+- Adding a gold-win condition makes the Gather action genuinely threatening. Opponents must respect a player who is Gathering because ignoring them can hand them a gold win.
+
+**Weaknesses:**
+- Two win conditions complicate the cognitive overhead. Players must track two separate tallies and reason about two possible game-ending states simultaneously.
+- Requires careful threshold tuning so that neither path is strictly dominant. If 30 gold is achievable before 10 Gems, the game always ends on the gold track. If 30 gold is effectively unreachable, the condition is meaningless.
+
+**Verdict:** ✅ **Recommended if Candidate A is chosen as the base.** Add the gold threshold as a secondary condition to give the Gather action strategic teeth. Start with 30 gold as the threshold and adjust based on playtesting.
+
+---
+
+#### Summary Table
+
+| Candidate | Core Mechanic | Stalemate Risk | Snowball Risk | Implementation Complexity | Verdict |
+|-----------|---------------|---------------|---------------|--------------------------|---------|
+| A — Gems (VP track) | Mine → Gem each round; first to X wins | Low — Gems create constant time pressure | Low — Gems can't be lost or spent | Low — add `gems` field, credit in Income Phase | ✅ Recommended |
+| B — Fixed rounds, most gold | Gold counted at round N | High — hoard and wait is dominant | Low | Medium — round counter, final tally | ❌ Conflicts with bid economy |
+| C — Total domination | Wipe all opponents | Medium — stalemates at parity | High — early winner snowballs | Low — check for surviving units | ⚠️ 2-player only |
+| D — Token pool depleted | Pool exhausts; count hexes | Low | Medium | High — requires pool rework | ❌ Needs major rework |
+| Alt 1 — Territorial majority | Control >50% of hexes | Medium | Medium | Medium — needs unit production | 🔲 Future option |
+| Alt 2 — Gems + Gold threshold | Candidate A + 30-gold instant win | Low | Low | Low — extends Candidate A | ✅ Best combined option |
 
 ---
 
@@ -182,5 +296,5 @@ Before implementing the mechanics above, the following UI and infrastructure wor
 | Prevent turtling | Ties go to attacker; gold income requires mine control |
 | Prevent runaway leader | Turn order favors poorest player in draft |
 | Create meaningful choices | Defend costs future action; Gather exposes you; Aid is a diplomacy tool |
-| Clear win condition | Control 3 of 4 mines, or accumulate 30 gold |
+| Clear win condition | Gems (Candidate A) + gold threshold (Alt 2); `endIf` checks both |
 | Sustainable round loop | Reset Phase restores full action pool each round |
