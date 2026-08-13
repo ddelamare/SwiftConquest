@@ -20,7 +20,7 @@ export const GameCtx = createContext<Ctx | null>(null);
 export const GameState = createContext<GameStateType | null>(null);
 export const PlayerID = createContext<string | null>(null);
 
-class Board extends Component<BoardProps, { bidAmount: number }> {
+class Board extends Component<BoardProps> {
   static propTypes = {
     G: PropTypes.any.isRequired,
     ctx: PropTypes.any.isRequired,
@@ -33,13 +33,6 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
   };
 
   static HexMap = GridGenerator.hexagon(3);
-
-  state = { bidAmount: 0 };
-
-  private clampBidAmount(value: string, max: number): number {
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? 0 : Math.min(max, Math.max(0, parsed));
-  }
 
   render() {
     var hexClickHandler = (evt, hex) => {
@@ -63,6 +56,7 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
 
     const currentPlayer = this.props.G.players[this.props.playerID!];
     const isInBidStage = GetPlayerStage(this.props.ctx, this.props.playerID) === 'bidSelection';
+    const pendingBid = currentPlayer?.pendingBid ?? 0;
     const maxBid = currentPlayer?.gold ?? 0;
 
     return (
@@ -84,11 +78,15 @@ class Board extends Component<BoardProps, { bidAmount: number }> {
                             type="number"
                             min={0}
                             max={maxBid}
-                            value={this.state.bidAmount}
-                            onChange={e => this.setState({ bidAmount: this.clampBidAmount(e.target.value, maxBid) })}
+                            value={pendingBid}
+                            onChange={e => {
+                              const parsed = parseInt(e.target.value, 10);
+                              const clamped = isNaN(parsed) ? 0 : Math.min(maxBid, Math.max(0, parsed));
+                              this.props.moves.setPendingBid(clamped);
+                            }}
                             style={{ width: '60px' }}
                           />
-                          <PlayerButton onClick={() => this.props.moves.submitBid(this.state.bidAmount)}>Submit Bid</PlayerButton>
+                          <PlayerButton onClick={() => this.props.moves.submitBid()}>Submit Bid</PlayerButton>
                         </div>
                       </div>
                     )}

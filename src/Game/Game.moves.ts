@@ -5,7 +5,7 @@ import { GetUnitsForPlayer } from '../Helpers/Units';
 import { FindElementById } from '../Utils/Array';
 import { INVALID_MOVE } from 'boardgame.io/core';
 import { TokenType } from "../Component/Token";
-import { ClearHighlightedHexes, FindHexagonWithToken, IsNeighbor } from "../Helpers/Hexes";
+import { ClearHighlightedHexes, FindHexagonWithToken } from "../Helpers/Hexes";
 import Action, { IsHexValidTargetForAction } from "../Helpers/Actions";
 import { FindTokenInMap } from "../Helpers/Tokens";
 import { GameStateType } from "./Game.setup";
@@ -14,17 +14,11 @@ import { GameStateType } from "./Game.setup";
 
 function resolveCombat(G: GameStateType) {
   const attackerID = G.attackerID;
-  if (!attackerID || !G.activeCombatHex) return;
+  if (!attackerID || !G.activeCombatHex || !G.attackerSourceHex) return;
 
   const targetHex: HexType = FindElementById(G.map, G.activeCombatHex);
-  if (!targetHex) return;
-
-  // Source hex: the hex with an Attack token owned by the attacker adjacent to the target
-  const sourceHex: HexType | undefined = G.map.find((h: HexType) =>
-    h.tokens.some((t: TokenType) => t.type === Action.Attack && t.owner === attackerID) &&
-    IsNeighbor(h, targetHex)
-  );
-  if (!sourceHex) return;
+  const sourceHex: HexType = FindElementById(G.map, G.attackerSourceHex);
+  if (!targetHex || !sourceHex) return;
 
   // Defender: first unit owner on the target hex that is not the attacker
   const defenderID: string | null = targetHex.units.find(u => u.owner !== attackerID)?.owner ?? null;
@@ -70,11 +64,14 @@ function resolveCombat(G: GameStateType) {
 
   // Clear per-round combat state
   G.players[attackerID].bid = null;
+  G.players[attackerID].pendingBid = 0;
   if (defenderID && G.players[defenderID]) {
     G.players[defenderID].bid = null;
+    G.players[defenderID].pendingBid = 0;
   }
   G.attackerID = null;
   G.activeCombatHex = null;
+  G.attackerSourceHex = null;
 }
 
 /* Token Actions */
@@ -190,8 +187,10 @@ export let lockInTarget: Move = ({ G, ctx, events, playerID }: MovePropsType) =>
     return INVALID_MOVE;
   }
 
-  // Store the attacker for use in combat resolution
+  // Store the attacker and source hex for use in combat resolution
   G.attackerID = playerID;
+  const sourceHex: HexType | undefined = FindHexagonWithToken(G, G.players[playerID].selectedToken);
+  G.attackerSourceHex = sourceHex ? sourceHex.id : null;
 
   // Find the defender: first unit on the target hex not owned by the attacker
   const defenderID: string | null = targetHex.units.find(u => u.owner !== playerID)?.owner ?? null;
@@ -213,11 +212,23 @@ export let lockInTarget: Move = ({ G, ctx, events, playerID }: MovePropsType) =>
   });
 }
 
-/* Blind bid submission — redacted so opponents cannot see the amount */
-export let submitBid: Move = {
-  move: ({ G, ctx, events, playerID }: MovePropsType, amount: number) => {
+/* Staged bid update — stores the pending bid amount in player state */
+export let setPendingBid: Move = {
+  move: ({ G, playerID }: MovePropsType, amount: number) => {
     const player = G.players[playerID];
-    if (typeof amount !== 'number' || amount < 0 || amount > player.gold) {
+    const clamped = typeof amount === 'number' ? Math.min(player.gold, Math.max(0, amount)) : 0;
+    player.pendingBid = clamped;
+  },
+  redact: true,
+  noLimit: true
+};
+
+/* Blind bid submission — commits pendingBid, redacted so opponents cannot see the amount */
+export let submitBid: Move = {
+  move: ({ G, ctx, events, playerID }: MovePropsType) => {
+    const player = G.players[playerID];
+    const amount = player.pendingBid ?? 0;
+    if (amount < 0 || amount > player.gold) {
       return INVALID_MOVE;
     }
 

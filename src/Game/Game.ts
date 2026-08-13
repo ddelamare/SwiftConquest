@@ -94,6 +94,7 @@ export function Game(options: GameOptions) {
             },
             bidSelection: {
               moves: {
+                setPendingBid: Moves.setPendingBid,
                 submitBid: Moves.submitBid
               },
               next:'attackResolution'
@@ -157,8 +158,10 @@ export function Game(options: GameOptions) {
           // Clear per-round combat and selection state
           G.activeCombatHex = null;
           G.attackerID = null;
+          G.attackerSourceHex = null;
           Object.keys(G.players).forEach(pid => {
             G.players[pid].bid = null;
+            G.players[pid].pendingBid = 0;
             G.players[pid].selectedToken = null;
           });
 
