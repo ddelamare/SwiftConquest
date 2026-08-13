@@ -1,12 +1,4 @@
-import { GameStateType } from "../Game/Game.setup"
-import { FindElementById } from "../Utils/Array";
+import type { GameState } from '../Domain/Model';
+import { findTokenOnMap } from '../Domain/Selectors';
 
-const FindTokenInMap = function (G : GameStateType, id : string | null) {
-    if (!id)
-    {
-        return null;
-    }
-    return FindElementById(G.map.flatMap(h => h.tokens), id);
-}
-
-export {FindTokenInMap}
+export const FindTokenInMap = (G: GameState, id: string | null) => findTokenOnMap(G, id);

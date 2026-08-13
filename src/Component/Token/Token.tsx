@@ -1,33 +1,30 @@
-import * as React from 'react'
-import './Token.css'
-import '../Component.css'
-import Action from '../../Helpers/Actions'
-import { GameState, PlayerID } from '../../Board'
-import { GameStateType } from '../../Game/Game.setup'
-export type TokenType = {
-    id: string,
-    type: Action,
-    owner: string | null,
-    rank: number | null}
+import * as React from 'react';
+import { Action } from '../../Domain/Model';
+import type { ActionToken } from '../../Domain/Model';
+import { GameClientContext } from '../../UI/GameClientContext';
+import '../Component.css';
+import './Token.css';
 
-export default function Token({tid, type, owner, rank, renderSvgTag}) {
+export type TokenType = ActionToken;
 
-    var fillColor = "gray";
-    if (owner) {
-        fillColor = `var(--player-${owner}-color)`
-    }
+interface TokenProps {
+  tid: string;
+  type: Action;
+  owner: string | null;
+  rank: number | null;
+  renderSvgTag: boolean;
+}
 
-    const BaseTag = renderSvgTag? 'svg' : 'g'
-    var gameState = React.useContext<GameStateType | null>(GameState);
-    var playerID = React.useContext<string | null>(PlayerID);
-    var player = gameState?.players[playerID!];
-    return (
-        <BaseTag className="shadow" height="100" width="100" viewBox="-50 -50 100 100">
-            <circle className='token' r={renderSvgTag? 50 : 5} fill={fillColor} filter={tid === player.selectedToken? 'url(#SelectGlow)' : ''}>
-            </circle>
-            <circle className='token' r={renderSvgTag? 40 : 4} fill={`url(#${Action[type].toLowerCase()}Token)`}>
-            </circle>
-            {/* <text dominantBaseline="middle" textAnchor="middle" fill='white'>{Action[type]}</text>             */}
-        </BaseTag> 
-    )
-} 
+export default function Token({ tid, type, owner, renderSvgTag }: TokenProps) {
+  const client = React.useContext(GameClientContext);
+  const player = client?.playerID ? client.G.players[client.playerID] : undefined;
+  const fillColor = owner ? `var(--player-${owner}-color)` : 'gray';
+  const BaseTag = renderSvgTag ? 'svg' : 'g';
+
+  return (
+    <BaseTag className="shadow" height="100" width="100" viewBox="-50 -50 100 100">
+      <circle className="token" r={renderSvgTag ? 50 : 5} fill={fillColor} filter={tid === player?.selectedToken ? 'url(#SelectGlow)' : ''} />
+      <circle className="token" r={renderSvgTag ? 40 : 4} fill={`url(#${Action[type].toLowerCase()}Token)`} />
+    </BaseTag>
+  );
+}

@@ -1,8 +1,14 @@
 # SwiftConquest
 
+Contributor architecture and peer-state rules are documented in
+[ARCHITECTURE.md](./ARCHITECTURE.md). Read it before adding game state, moves,
+secret information, phases, or UI interaction state.
+
 SwiftConquest is a digital, turn-based, hexagonal territory control board game built with React and [boardgame.io](https://boardgame.io/). Multiple players compete to expand their presence across a shared hex map by drafting action tokens, deploying units, and resolving combat.
 
-> **Note:** This game is currently in active development. Scoring, victory conditions, and several action mechanics have not yet been implemented.
+> **Note:** This game is currently in active development. Core scoring, victory,
+> income, and combat loops are implemented, while several action mechanics and
+> multiplayer-facing quality-of-life features remain incomplete.
 
 ---
 

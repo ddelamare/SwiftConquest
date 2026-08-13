@@ -1,177 +1,80 @@
-import { ActivePlayers, INVALID_MOVE } from 'boardgame.io/core';
+import { ActivePlayers } from 'boardgame.io/core';
+import type { TurnConfig } from 'boardgame.io';
+import { Phase, Stage } from '../Domain/Model';
+import { hexesWithUnits } from '../Domain/Selectors';
 import { endIfCond } from './Game.endIf';
+import { awardIncome, resetRound } from './Game.lifecycle';
+import * as Moves from './Game.moves';
 import { defaultOptions, GameOptions } from './Game.options';
-import { Extend, GetUniqueId, UnwrapProxy } from '../Utils/Objects'
-import { setupGame, playerView } from './Game.setup';
-import { TokenType } from '../Component/Token';
-import { FindElementById } from '../Utils/Array';
-import { HexType } from '../Component/Hex/Hex';
-import { CreateUnitForPlayer, GetHexesWithDudes } from '../Helpers/Units';
-import { MovePropsType } from './Game.types';
-import * as Moves from './Game.moves'
-import { TurnConfig } from 'boardgame.io';
-import Action from '../Helpers/Actions';
-import { Hexes } from '../Helpers/Hexes';
+import { playerView, setupGame } from './Game.setup';
 
-export function Game(options: GameOptions) {
-  options = Extend(options, defaultOptions);
-  console.table(options);
+export function Game(options: Partial<GameOptions> = {}) {
+  const resolvedOptions: GameOptions = { ...defaultOptions, ...options };
 
   return {
-    setup: setupGame(options),
-    turn: {
-      minMoves: 1,
-      maxMoves: 1,
-    },
+    setup: setupGame(resolvedOptions),
+    turn: { minMoves: 1, maxMoves: 1 },
     phases: {
-      actionDraft: {
+      [Phase.ActionDraft]: {
         start: true,
-        next: 'initialUnitPlacement',
-        moves: {
-          pickAction: ({ G, playerID, }: MovePropsType, id) => {
-            if (G.actionPool.length <= id) {
-              return INVALID_MOVE;
-            }
-
-            var action: TokenType = UnwrapProxy(G.actionPool.splice(id, 1))[0];
-            action.owner = playerID;
-            var newPlayer = G.players[playerID];
-            // Bypass local multiplayer double action bug
-            if (!newPlayer.availableActions.some((elem) => elem.id === action.id)) {
-              newPlayer.availableActions.push(action);
-            }
-          },
-        },
-        endIf: ({ G }: MovePropsType) => (G.actionPool.length <= 0)
+        next: Phase.InitialUnitPlacement,
+        moves: { pickAction: Moves.pickAction },
+        endIf: ({ G }) => G.actionPool.length === 0,
       },
-      initialUnitPlacement: {
-        next: 'actionPlacementPhase',
-        moves: {
-          placeDude: ({ G, playerID }: MovePropsType, hexId) => {
-            var hexElem: HexType = FindElementById(G.map, hexId);
-            if (!hexElem || hexElem.units.length !== 0) {
-              return INVALID_MOVE;
-            }
-            hexElem.units.push(CreateUnitForPlayer(playerID));
-          },
-        },
-        endIf: ({ G }) => (GetHexesWithDudes(G).length >= 12)
+      [Phase.InitialUnitPlacement]: {
+        next: Phase.ActionPlacement,
+        moves: { placeDude: Moves.placeUnit },
+        endIf: ({ G }) => hexesWithUnits(G).length >= 12,
       },
-      actionPlacementPhase: {
-        next: 'attackResolutionPhase',
-        turn: {
-          // Make all players active and wait until all players have made a move
-          activePlayers: ActivePlayers.ALL_ONCE,
-        },
+      [Phase.ActionPlacement]: {
+        next: Phase.AttackResolution,
+        turn: { activePlayers: ActivePlayers.ALL_ONCE },
         moves: {
           selectToken: Moves.selectToken,
           placeToken: Moves.placeToken,
           clearToken: Moves.clearToken,
-          lockInTokens: Moves.lockInTokens
-        }
+          lockInTokens: Moves.lockInTokens,
+        },
       },
-      attackResolutionPhase: {
-        next:'incomePhase',
+      [Phase.AttackResolution]: {
+        next: Phase.Income,
         moves: {},
         turn: {
-          activePlayers: {
-            currentPlayer: 'attackSelection'
-          },
+          activePlayers: { currentPlayer: Stage.AttackSelection },
           stages: {
-            attackSelection: {
+            [Stage.AttackSelection]: {
               moves: {
                 selectToken: Moves.selectToken,
                 selectTarget: Moves.selectTarget,
-                lockInTarget: Moves.lockInTarget
+                lockInTarget: Moves.lockInTarget,
               },
-              next:'aidSelection'
+              next: Stage.AidSelection,
             },
-            aidSelection: {
-              moves: {
-                selectToken: Moves.selectToken,
-              },
-              next:'bidSelection'
+            [Stage.AidSelection]: {
+              moves: { selectToken: Moves.selectToken },
+              next: Stage.BidSelection,
             },
-            bidSelection: {
-              moves: {
-                setPendingBid: Moves.setPendingBid,
-                submitBid: Moves.submitBid
-              },
-              next:'attackResolution'
+            [Stage.BidSelection]: {
+              moves: { submitBid: Moves.submitBid },
+              next: Stage.AttackResolution,
             },
-            attackResolution: {
-              moves: {}
-            }
-          }
-        } satisfies TurnConfig
+            [Stage.AttackResolution]: { moves: {} },
+          },
+        } satisfies TurnConfig,
       },
-      incomePhase: {
-        next: 'resetPhase',
+      [Phase.Income]: {
+        next: Phase.Reset,
         moves: {},
-        onBegin: ({ G }) => {
-          // Award income for each mine hex that is uncontested
-          G.map.forEach((hex: HexType) => {
-            if (hex.type !== Hexes.Mine) return;
-            // A mine is controlled when exactly one player has units there
-            const owners = hex.units.map(u => u.owner as string);
-            const uniqueOwners = Array.from(new Set(owners));
-            if (uniqueOwners.length !== 1) return;
-            const controllerID = uniqueOwners[0];
-            if (!G.players[controllerID]) return;
-
-            // Basic mine income: +1 gold per round
-            G.players[controllerID].gold += 1;
-
-            // Gem income: +1 gem only when the player has a Gather token on this mine
-            const hasGather = hex.tokens.some(
-              (t: TokenType) => t.type === Action.Gather && t.owner === controllerID
-            );
-            if (hasGather) {
-              G.players[controllerID].gems += 1;
-            }
-          });
-        }
+        onBegin: awardIncome,
       },
-      resetPhase: {
-        next: 'actionDraft',
+      [Phase.Reset]: {
+        next: Phase.ActionDraft,
         moves: {},
-        onBegin: ({ G }) => {
-          // Return all tokens from the map back to their owner's hand
-          G.map.forEach((hex: HexType) => {
-            while (hex.tokens.length > 0) {
-              const token: TokenType = hex.tokens.pop()!;
-              if (token.owner !== null && G.players[token.owner]) {
-                G.players[token.owner].availableActions.push(token);
-              }
-            }
-          });
-
-          // Recreate the shared action pool with four fresh tokens
-          G.actionPool.splice(0, G.actionPool.length);
-          G.actionPool.push(
-            { id: GetUniqueId(), type: Action.Attack, owner: null, rank: null },
-            { id: GetUniqueId(), type: Action.Defend, owner: null, rank: null },
-            { id: GetUniqueId(), type: Action.Gather, owner: null, rank: null },
-            { id: GetUniqueId(), type: Action.Aid, owner: null, rank: null }
-          );
-
-          // Clear per-round combat and selection state
-          G.activeCombatHex = null;
-          G.attackerID = null;
-          G.attackerSourceHex = null;
-          Object.keys(G.players).forEach(pid => {
-            G.players[pid].bid = null;
-            G.players[pid].pendingBid = 0;
-            G.players[pid].selectedToken = null;
-          });
-
-          // Clear hex highlights
-          G.map.forEach((hex: HexType) => { hex.isHighlighted = false; });
-        }
-      }
+        onBegin: resetRound,
+      },
     },
     endIf: endIfCond,
-    playerView: playerView,
+    playerView,
   };
 }
 

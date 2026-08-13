@@ -1,10 +1,15 @@
-import { Ctx } from "boardgame.io"
-import { GameStateType } from "./Game.setup"
-import { EventsAPI } from "boardgame.io/dist/types/src/plugins/plugin-events"
+import type { Ctx } from 'boardgame.io';
+import type { GameState } from '../Domain/Model';
 
-export interface MovePropsType  {
-    G : GameStateType,
-    ctx: Ctx,
-    events: EventsAPI
-    playerID: string 
+export interface GameEvents {
+  endPhase(): void;
+  endStage(): void;
+  setActivePlayers(args: { value: Record<string, string> }): void;
+}
+
+export interface MovePropsType {
+  G: GameState;
+  ctx: Ctx;
+  events: GameEvents;
+  playerID: string;
 }

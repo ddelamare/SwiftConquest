@@ -1,15 +1,13 @@
 
 
-type GameOptions = {
+export type GameOptions = {
     startingTokens: any[],
     gameMode: string,
     tokensToDraft: number,
 }
 
-var defaultOptions = {
+export const defaultOptions: GameOptions = {
     startingTokens: [],
     gameMode: '',
     tokensToDraft: 5,
-} satisfies GameOptions
-
-export { defaultOptions, GameOptions }
+}

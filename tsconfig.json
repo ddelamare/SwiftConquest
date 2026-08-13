@@ -8,6 +8,8 @@
       "allowJs": true,
       "jsx": "react-jsx",
       "moduleResolution": "node",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
       "rootDir": "src",
       "noImplicitReturns": false,
       "noImplicitThis": true,
@@ -24,7 +26,5 @@
       "src/setupTests.ts"
     ],
     "include": ["src"],
-    "types": [
-      "typePatches"
-    ]
+    "types": ["jest", "node"]
   }

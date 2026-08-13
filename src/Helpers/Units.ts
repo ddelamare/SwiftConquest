@@ -1,15 +1,5 @@
-import { HexType } from "../Component/Hex/Hex";
-import { GetUniqueId } from "../Utils/Objects";
+import type { GameState, HexState, PlayerID } from '../Domain/Model';
+import { hexesWithUnits, unitsForPlayer } from '../Domain/Selectors';
 
-
-export function CreateUnitForPlayer(playerID : string | number){
-    return {id: GetUniqueId(), owner: playerID + ""};
-}
-
-export function GetHexesWithDudes(G) {
-    return G.map.filter((hex : HexType) => hex.units.length > 0);
-}
-
-export function GetUnitsForPlayer(hex : HexType, playerID : string | number){
-    return hex.units.filter((unit) => unit.owner === playerID + "");
-}
+export const GetHexesWithDudes = (G: GameState) => hexesWithUnits(G);
+export const GetUnitsForPlayer = (hex: HexState, playerID: PlayerID | number) => unitsForPlayer(hex, String(playerID));

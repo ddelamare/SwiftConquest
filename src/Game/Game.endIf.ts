@@ -1,9 +1,9 @@
-// Return true if a player has met a victory condition
+import type { GameState } from '../Domain/Model';
 
 const GEM_WIN_THRESHOLD = 10;
 const GOLD_WIN_THRESHOLD = 30;
 
-export function endIfCond({ G, ctx }) {
+export function endIfCond({ G }: { G: GameState }) {
   for (const playerID of Object.keys(G.players)) {
     const player = G.players[playerID];
     if (player.gems >= GEM_WIN_THRESHOLD) {

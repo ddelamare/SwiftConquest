@@ -1,52 +1,23 @@
-import { Ctx } from "boardgame.io";
-import { HexType } from "../Component/Hex/Hex"
-import { TokenType } from "../Component/Token"
-import { GameStateType } from "../Game/Game.setup"
-import { FindHexagonWithToken, IsNeighbor } from "./Hexes";
-import { GetSelectedTokenId, IsPlayerActive, GetPlayerStage } from "./Players";
-import { FindElementById } from "../Utils/Array";
-import { FindTokenInMap } from "./Tokens";
+import type { Ctx } from 'boardgame.io';
+import { Action, ActionToken, GameState, HexState } from '../Domain/Model';
+import { isValidTargetForAction } from '../Domain/Rules';
+import { findHex, findTokenOnMap } from '../Domain/Selectors';
+import { GetPlayerStage, GetSelectedTokenId, IsPlayerActive } from './Players';
 
-enum Action {
-    Unknown = 0,
-    Attack,
-    Defend,
-    Gather,
-    Aid
+export function IsHexValidTargetForAction(G: GameState, hex: HexState | undefined, action: ActionToken | undefined) {
+  return isValidTargetForAction(G, hex, action);
 }
 
-const IsHexValidTargetForAction = function(G : GameStateType, hex: HexType, action: TokenType)
-{    
-    var tokenHex = FindHexagonWithToken(G, action.id);
-    if (!tokenHex || !IsNeighbor(hex, tokenHex)){
-        return false;
-    }
-    
-    if (action.type === Action.Attack) {
-        // Hex is valid to attack if it's empty or all units are another players
-        return !hex.units.some((u) => u.owner === action.owner);
-    }
-    else if (action.type === Action.Aid) {
-        if (!G.activeCombatHex)
-            return false;
+export function IsReadyToLockInTarget(G: GameState, ctx: Ctx, playerID: string | null): boolean {
+  const selectedTokenID = GetSelectedTokenId(G, playerID);
+  if (!playerID || !IsPlayerActive(ctx, playerID) || !G.activeCombatHex || !selectedTokenID) return false;
+  if (GetPlayerStage(ctx, playerID) !== 'attackSelection') return false;
 
-        return hex.id === G.activeCombatHex;
-    }
+  return isValidTargetForAction(
+    G,
+    findHex(G, G.activeCombatHex),
+    findTokenOnMap(G, selectedTokenID),
+  );
 }
 
-const IsReadyToLockInTarget = function(G: GameStateType, ctx: Ctx, playerID: string | null) {
-    if (!IsPlayerActive(ctx, playerID) || !G.activeCombatHex || !GetSelectedTokenId(G, playerID) ){
-        return false;
-    }
-
-    if (GetPlayerStage(ctx, playerID) !== "attackSelection"){
-        return false;
-    }
-
-    var hex = FindElementById(G.map, G.activeCombatHex);
-    var targetHex = FindTokenInMap(G, GetSelectedTokenId(G, playerID));
-    return IsHexValidTargetForAction(G, hex, targetHex);
-}
-
-export default Action
-export {IsHexValidTargetForAction, IsReadyToLockInTarget}
+export default Action;

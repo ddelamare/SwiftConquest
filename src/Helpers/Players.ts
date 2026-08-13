@@ -1,5 +1,5 @@
 import { Ctx } from "boardgame.io";
-import { GameStateType } from "../Game/Game.setup";
+import type { GameState } from '../Domain/Model';
 
 export function IsPlayerActive(ctx: Ctx, playerID: string | null){
     if (playerID === null)
@@ -11,10 +11,10 @@ export function IsPlayerActive(ctx: Ctx, playerID: string | null){
         || (ctx.activePlayers && Object.keys(ctx.activePlayers).includes(playerID))
 }
 
-export function GetSelectedTokenId(G: GameStateType, playerID: string | null) : string | null {
+export function GetSelectedTokenId(G: GameState, playerID: string | null) : string | null {
     if (!playerID)
         return null;
-    return G.players[playerID].selectedToken;
+    return G.players[playerID]?.selectedToken ?? null;
 }
 
 export function GetPlayerStage(ctx: Ctx, playerID: string | null){
