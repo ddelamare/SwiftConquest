@@ -6,7 +6,7 @@ import { FindHexagonWithToken, IsNeighbor } from "./Hexes";
 import { GetSelectedTokenId, IsPlayerActive, GetPlayerStage } from "./Players";
 import { FindElementById } from "../Utils/Array";
 import { FindTokenInMap } from "./Tokens";
-import { act } from "react";
+
 
 enum Action {
     Unknown = 0,

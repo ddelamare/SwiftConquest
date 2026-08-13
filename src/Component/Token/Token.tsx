@@ -2,8 +2,7 @@ import * as React from 'react'
 import './Token.css'
 import '../Component.css'
 import Action from '../../Helpers/Actions'
-import { Ctx } from 'boardgame.io'
-import { GameCtx, GameState, PlayerID } from '../../Board'
+import { GameState, PlayerID } from '../../Board'
 import { GameStateType } from '../../Game/Game.setup'
 export type TokenType = {
     id: string,
