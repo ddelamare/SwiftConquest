@@ -228,7 +228,7 @@ export let submitBid: Move = {
   move: ({ G, ctx, events, playerID }: MovePropsType) => {
     const player = G.players[playerID];
     const amount = player.pendingBid ?? 0;
-    if (amount < 0 || amount > player.gold) {
+    if (typeof amount !== 'number' || amount < 0 || amount > player.gold) {
       return INVALID_MOVE;
     }
 
