@@ -8,7 +8,8 @@ export function createHexagonalCoordinates(radius: number): HexCoordinate[] {
     const firstR = Math.max(-radius, -q - radius);
     const lastR = Math.min(radius, -q + radius);
     for (let r = firstR; r <= lastR; r += 1) {
-      coordinates.push({ q, r, s: -q - r });
+      const s = -q - r;
+      coordinates.push({ q, r, s: Object.is(s, -0) ? 0 : s });
     }
   }
   return coordinates;
@@ -54,4 +55,3 @@ export function createPlayer(playerID: PlayerID): PlayerState {
     bid: null,
   };
 }
-

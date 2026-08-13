@@ -3,6 +3,5 @@ import App from './App';
 
 test('renders game board', () => {
   const { container } = render(<App />);
-  const boardElement = container.querySelector('.board');
-  expect(boardElement).toBeInTheDocument();
+  expect(container.querySelector('.board')).toBeInTheDocument();
 });

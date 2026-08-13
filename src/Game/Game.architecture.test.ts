@@ -18,6 +18,7 @@ describe('peer-safe game architecture', () => {
 
     expect(second).toEqual(first);
     expect(() => JSON.stringify(first)).not.toThrow();
+    expect(JSON.parse(JSON.stringify(first))).toEqual(first);
     expect(new Set(first.map.map((hex) => hex.id)).size).toBe(first.map.length);
   });
 
@@ -86,4 +87,3 @@ describe('peer-safe game architecture', () => {
     expect(G.actionPool.every((token) => token.id.startsWith('draft:2:'))).toBe(true);
   });
 });
-

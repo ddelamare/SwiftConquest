@@ -152,6 +152,11 @@ Changes to rules or synchronized state should include tests for:
 Prefer pure domain and game-function tests. A render smoke test is useful but is
 not a substitute for rule-level coverage.
 
+Use `npm run test:ci` for the deterministic CI suite, `npm run test:coverage` for
+domain/game coverage, `npm run typecheck` for static verification, and
+`npm run build` for production integration. Coverage is diagnostic rather than a
+substitute for testing invariants and peer-specific behavior.
+
 ## Lessons learned
 
 - A type defined in a React component is still a dependency on the UI layer; all
@@ -163,8 +168,10 @@ not a substitute for rule-level coverage.
 - Passing whole client objects to moves expands the trust boundary. Stable IDs and
   server-side resolution are safer and easier to evolve.
 - Deterministic gameplay includes identifiers and setup data, not only combat math.
+- Even unusual JavaScript numeric values matter at the synchronization boundary:
+  `-0` becomes `0` during JSON serialization. Authoritative state should equal its
+  own JSON round trip, not merely be accepted by `JSON.stringify`.
 - Large feature PRs that add phases and rules without tests amplify existing
   coupling. Establish domain boundaries before expanding the state machine.
 - Dependency updates and architectural refactors should usually remain separate;
   otherwise type/toolchain failures are difficult to attribute.
-
