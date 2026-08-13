@@ -7,7 +7,6 @@ import { GetSelectedTokenId, IsPlayerActive, GetPlayerStage } from "./Players";
 import { FindElementById } from "../Utils/Array";
 import { FindTokenInMap } from "./Tokens";
 
-
 enum Action {
     Unknown = 0,
     Attack,

@@ -5,9 +5,74 @@ import { GetUnitsForPlayer } from '../Helpers/Units';
 import { FindElementById } from '../Utils/Array';
 import { INVALID_MOVE } from 'boardgame.io/core';
 import { TokenType } from "../Component/Token";
-import { ClearHighlightedHexes, FindHexagonWithToken, GetNeighbors } from "../Helpers/Hexes";
+import { ClearHighlightedHexes, FindHexagonWithToken } from "../Helpers/Hexes";
 import Action, { IsHexValidTargetForAction } from "../Helpers/Actions";
 import { FindTokenInMap } from "../Helpers/Tokens";
+import { GameStateType } from "./Game.setup";
+
+/* --- Combat resolution helper --- */
+
+function resolveCombat(G: GameStateType) {
+  const attackerID = G.attackerID;
+  if (!attackerID || !G.activeCombatHex || !G.attackerSourceHex) return;
+
+  const targetHex: HexType = FindElementById(G.map, G.activeCombatHex);
+  const sourceHex: HexType = FindElementById(G.map, G.attackerSourceHex);
+  if (!targetHex || !sourceHex) return;
+
+  // Defender: first unit owner on the target hex that is not the attacker
+  const defenderID: string | null = targetHex.units.find(u => u.owner !== attackerID)?.owner ?? null;
+
+  if (!G.players[attackerID]) return;
+
+  // Calculate combat strengths
+  const attackerBid = G.players[attackerID].bid ?? 0;
+  const attackerUnits = sourceHex.units.filter(u => u.owner === attackerID).length;
+  const attackerStrength = attackerUnits + attackerBid;
+
+  const defenderBid = defenderID ? (G.players[defenderID]?.bid ?? 0) : 0;
+  const defenderUnits = defenderID ? targetHex.units.filter(u => u.owner === defenderID).length : 0;
+  const hasDefendToken = defenderID !== null &&
+    targetHex.tokens.some((t: TokenType) => t.type === Action.Defend && t.owner === defenderID);
+  const defenderStrength = (defenderUnits * (hasDefendToken ? 2 : 1)) + defenderBid;
+
+  // Deduct bids from gold (bids are spent regardless of outcome)
+  G.players[attackerID].gold = Math.max(0, G.players[attackerID].gold - attackerBid);
+  if (defenderID && G.players[defenderID]) {
+    G.players[defenderID].gold = Math.max(0, G.players[defenderID].gold - defenderBid);
+  }
+
+  // >= ensures ties favor the attacker (passive defense is never the dominant strategy)
+  if (attackerStrength >= defenderStrength) {
+    // Attacker wins: move all attacker units to target hex
+    for (let i = sourceHex.units.length - 1; i >= 0; i--) {
+      if (sourceHex.units[i].owner === attackerID) {
+        targetHex.units.push(sourceHex.units[i]);
+        sourceHex.units.splice(i, 1);
+      }
+    }
+    // Defender loses one unit
+    if (defenderID) {
+      const defIdx = targetHex.units.findIndex(u => u.owner === defenderID);
+      if (defIdx !== -1) targetHex.units.splice(defIdx, 1);
+    }
+  } else {
+    // Defender wins: attacker loses one unit from source hex
+    const atkIdx = sourceHex.units.findIndex(u => u.owner === attackerID);
+    if (atkIdx !== -1) sourceHex.units.splice(atkIdx, 1);
+  }
+
+  // Clear per-round combat state
+  G.players[attackerID].bid = null;
+  G.players[attackerID].pendingBid = 0;
+  if (defenderID && G.players[defenderID]) {
+    G.players[defenderID].bid = null;
+    G.players[defenderID].pendingBid = 0;
+  }
+  G.attackerID = null;
+  G.activeCombatHex = null;
+  G.attackerSourceHex = null;
+}
 
 /* Token Actions */
 export let selectToken: Move = {
@@ -116,23 +181,70 @@ export let lockInTarget: Move = ({ G, ctx, events, playerID }: MovePropsType) =>
   }
 
   // Validate that the targeted hex is acceptable
-  var hex = FindElementById(G.map, G.activeCombatHex);
+  var targetHex: HexType = FindElementById(G.map, G.activeCombatHex);
   var action = FindTokenInMap(G, G.players[playerID].selectedToken);
-  if (!IsHexValidTargetForAction(G, hex, action)) {
+  if (!IsHexValidTargetForAction(G, targetHex, action)) {
     return INVALID_MOVE;
   }
 
-  // Calculate and find all players who have nearby aid tokens.
-  var targetNeighbors = GetNeighbors(G, hex);
-  var sourceHex = FindHexagonWithToken(G, action.id)!;
-  var sourceNeighbors = GetNeighbors(G, sourceHex);
-  // Finds all nearby aid tokens except for on the hex being attacked
-  var validAidTokens = targetNeighbors.concat(sourceNeighbors).filter((h) => h.id !== G.activeCombatHex).flatMap((h) => h.tokens).filter(t => t.type === Action.Aid);
-  // Generates the next phase map based on who has aid tokens nearby
-  var stateMap = validAidTokens.reduce<any>((prev, token, idx, arr) => { prev[token.owner || ""] = "aidSelection"; return prev;}, {})
+  // Store the attacker and source hex for use in combat resolution
+  G.attackerID = playerID;
+  const sourceHex: HexType | undefined = FindHexagonWithToken(G, G.players[playerID].selectedToken);
+  G.attackerSourceHex = sourceHex ? sourceHex.id : null;
+
+  // Find the defender: first unit on the target hex not owned by the attacker
+  const defenderID: string | null = targetHex.units.find(u => u.owner !== playerID)?.owner ?? null;
+
+  if (!defenderID) {
+    // Uncontested hex: resolve immediately without a bid phase
+    G.players[playerID].bid = 0;
+    resolveCombat(G);
+    events.endPhase();
+    return;
+  }
+
+  // Both attacker and defender enter the blind bid stage
   events.setActivePlayers({
-    value: stateMap
+    value: {
+      [playerID]: 'bidSelection',
+      [defenderID]: 'bidSelection'
+    }
   });
 }
 
+/* Staged bid update — stores the pending bid amount in player state */
+export let setPendingBid: Move = {
+  move: ({ G, playerID }: MovePropsType, amount: number) => {
+    const player = G.players[playerID];
+    const clamped = typeof amount === 'number' ? Math.min(player.gold, Math.max(0, amount)) : 0;
+    player.pendingBid = clamped;
+  },
+  redact: true,
+  noLimit: true
+};
 
+/* Blind bid submission — commits pendingBid, redacted so opponents cannot see the amount */
+export let submitBid: Move = {
+  move: ({ G, ctx, events, playerID }: MovePropsType) => {
+    const player = G.players[playerID];
+    const amount = player.pendingBid ?? 0;
+    if (typeof amount !== 'number' || amount < 0 || amount > player.gold) {
+      return INVALID_MOVE;
+    }
+
+    player.bid = amount;
+
+    // When every active player has submitted their bid, resolve combat and advance the phase
+    const activePlayerIDs = Object.keys(ctx.activePlayers || {});
+    const allBid = activePlayerIDs.every(pid => G.players[pid]?.bid !== null);
+
+    if (allBid) {
+      resolveCombat(G);
+      events.endPhase();
+    } else {
+      events.endStage();
+    }
+  },
+  redact: true,
+  noLimit: true
+};
